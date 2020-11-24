@@ -83,7 +83,7 @@ int main()
 	return 0;
 }
 
-int calc(int token) {
+int calc(int token) {//사칙연산
 	int result = 0;
 	int op = token;
 	switch (op) {
@@ -94,12 +94,28 @@ int calc(int token) {
 				result += atoi(lexeme);
 				token = lex();
 			}
-			else if (token == LEFT_PAREN){
+			else if (token == LEFT_PAREN){//안에 괄호 있을 때
 				token = lex();
 				result += calc(token);
 				token = lex();
 			}
 		}
+		break;
+	case MULT_OP:
+		result = 1;
+		token = lex();
+		while (token != RIGHT_PAREN) {
+			if (token == INT_LIT) {
+				result *= atoi(lexeme);
+				token = lex();
+			}
+			else if (token == LEFT_PAREN) {
+				token = lex();
+				result *= calc(token);
+				token = lex();
+			}
+		}
+		break;
 	}
 	return result;
 }
