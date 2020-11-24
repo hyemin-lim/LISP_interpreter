@@ -1,4 +1,0 @@
-﻿  front.c
-c:\임혜민\강의-20202학기\프로그래밍 언어론\lexical analyzer\lexical analyzer\front.c(79): warning C4013: 'calc'이(가) 정의되지 않았습니다. extern은 int형을 반환하는 것으로 간주합니다.
-c:\임혜민\강의-20202학기\프로그래밍 언어론\lexical analyzer\lexical analyzer\front.c(242): warning C4013: 'strcmp'이(가) 정의되지 않았습니다. extern은 int형을 반환하는 것으로 간주합니다.
-  Lexical analyzer.vcxproj -> C:\임혜민\강의-20202학기\프로그래밍 언어론\Lexical analyzer\Debug\Lexical analyzer.exe
