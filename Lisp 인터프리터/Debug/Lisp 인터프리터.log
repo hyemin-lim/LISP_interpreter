@@ -1,2 +1,8 @@
 ﻿  Lisp 인터프리터.cpp
-  Lisp 인터프리터.vcxproj -> D:\2020-2강의자료\PL\Lisp 인터프리터\Debug\Lisp 인터프리터.exe
+C:\Users\임혜민\source\repos\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(74,27): warning C4244: '+=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\임혜민\source\repos\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(89,27): warning C4244: '*=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\임혜민\source\repos\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(101,16): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\임혜민\source\repos\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(105,27): warning C4244: '/=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\임혜민\source\repos\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(117,16): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\임혜민\source\repos\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(121,27): warning C4244: '-=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Lisp 인터프리터.vcxproj -> C:\Users\임혜민\source\repos\LISP_interpreter\Debug\Lisp 인터프리터.exe

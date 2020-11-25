@@ -22,11 +22,6 @@ char nextChar;
 int lexLen;
 int token;
 
-//typedef struct Node {
-//	char lexeme[100];
-//	Node* nextNode;
-//} Node;
-
 FILE* in_fp;
 FILE* out_fp;
 
@@ -68,15 +63,15 @@ int lex();
 
 
 
-int calc(int token) {//사칙연산
-	int result = 0;
+float calc(int token) {//사칙연산
+	float result = 0;
 	int op = token;
 	switch (op) {
 	case ADD_OP:
 		token = lex();
 		while (token != RIGHT_PAREN) {
 			if (token == INT_LIT) {
-				result += atoi(lexeme);
+				result += atof(lexeme);
 				token = lex();
 			}
 			else if (token == LEFT_PAREN) {//안에 괄호 있을 때
@@ -91,12 +86,44 @@ int calc(int token) {//사칙연산
 		token = lex();
 		while (token != RIGHT_PAREN) {
 			if (token == INT_LIT) {
-				result *= atoi(lexeme);
+				result *= atof(lexeme);
 				token = lex();
 			}
 			else if (token == LEFT_PAREN) {
 				token = lex();
 				result *= calc(token);
+				token = lex();
+			}
+		}
+		break;
+	case DIV_OP:
+		token = lex();
+		result = atof(lexeme);
+		token = lex();
+		while (token != RIGHT_PAREN) {
+			if (token == INT_LIT) {
+				result /= atof(lexeme);
+				token = lex();
+			}
+			else if (token == LEFT_PAREN) {
+				token = lex();
+				result /= calc(token);
+				token = lex();
+			}
+		}
+		break;
+	case SUB_OP:
+		token = lex();
+		result = atof(lexeme);
+		token = lex();
+		while (token != RIGHT_PAREN) {
+			if (token == INT_LIT) {
+				result -= atof(lexeme);
+				token = lex();
+			}
+			else if (token == LEFT_PAREN) {
+				token = lex();
+				result -= calc(token);
 				token = lex();
 			}
 		}
@@ -298,7 +325,7 @@ int main()
 		int token = lex();
 		if (token == LEFT_PAREN) {
 			token = lex();
-			printf("%d\n", calc(token));
+			printf("%f\n", calc(token));
 		}
 	} while (nextToken != EOF);
 
