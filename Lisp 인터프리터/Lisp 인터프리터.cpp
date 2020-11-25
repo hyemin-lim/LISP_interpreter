@@ -12,7 +12,10 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string>
+#include <iostream>
+#include <map>
 #pragma warning(disable: 4996)
+using namespace std;
 
 /* Global Variable */
 int nextToken;
@@ -38,7 +41,7 @@ int lex();
 
 /* Token codes */
 #define INT_LIT 10
-#define IDENT 11
+#define SYMBOL 11
 #define FOR 12
 #define IF 13
 #define ELSE 14
@@ -60,7 +63,17 @@ int lex();
 #define RIGHT_BR 31
 #define ENTER 00
 
+#define SETQ 50 //SETQ token number
 
+//multiple variable을 넣을 수 있는 map 구현
+//string 과 map 을 사용하였고 symbol과 그 symbol에 저장될 SETQval로 구성됨.
+//SETQval은 실제 value의 값과 그 value의 자료형을 각각 string과 int로 저장함.
+typedef struct SETQval {
+	int val_type;
+	string val;
+}SETQval;
+
+map<string, SETQval> symbols;
 
 
 float calc(int token) {//사칙연산
@@ -128,9 +141,36 @@ float calc(int token) {//사칙연산
 			}
 		}
 		break;
+	default:
+		return -1;
 	}
 	return result;
 }
+
+void eval(int token) {
+	if (token == ADD_OP || token == SUB_OP || token == MULT_OP || token == DIV_OP) { //사칙연산
+		cout << ">" << calc(token) << endl;
+	}
+	else if (token == SETQ) { //SETQ
+		token = lex();
+		if (token == SYMBOL) {
+			string s(lexeme);//symbol string화하기
+			token = lex();
+			string v(lexeme);//value string화하기
+			SETQval newval;
+			newval.val = v;
+			newval.val_type = token;
+			symbols.insert(make_pair(s, newval));//값 저장하기
+			token = lex(); // 닫는 괄호 처리하기
+			cout << ">" << v << endl;
+		}
+	}
+	else { //여기에 계속 다른 연산 추가
+
+	}
+}
+
+
 
 /******************************************
  * lookup - a function to lookup operators
@@ -272,8 +312,11 @@ int lex() {
 		else if (strcmp(lexeme, "float") == 0) {
 			nextToken = FLOAT;
 		}
+		else if (strcmp(lexeme, "SETQ") == 0) {
+			nextToken = SETQ;
+		}
 		else {
-			nextToken = IDENT;
+			nextToken = SYMBOL;
 		}
 		break;
 
@@ -323,9 +366,27 @@ int main()
 	getChar();
 	do {
 		int token = lex();
-		if (token == LEFT_PAREN) {
+		if (token == LEFT_PAREN) {//여는 괄호로 시작할 때
 			token = lex();
-			printf("%f\n", calc(token));
+			eval(token);//연산 들어가기
+		}
+		else {//여는 괄호로 시작하지 않을 때: SYMBOL 혹은 syntax error 임. 둘이 구분해야함.
+			if (token == SYMBOL) {//symbol로 시작할 때: 존재하는 symbol의 값을 알고싶을때
+				string findsym(lexeme);
+				map<string, SETQval>::iterator it;
+				if (symbols.find(findsym) != symbols.end()) { //입력된 symbol이 이미 존재할때
+					it = symbols.find(findsym); //map에서 symbol을 찾아서
+					cout << ">" << it->second.val << endl; //그 value를 출력함.
+				}
+				else {//입력된 symbol이 존재하지 않을 때
+					cout << "symbol not found." << endl;
+					fflush(stdin);
+				}
+			}
+			else {
+				printf("Syntax Error\n");
+				fflush(stdin);
+			}
 		}
 	} while (nextToken != EOF);
 
