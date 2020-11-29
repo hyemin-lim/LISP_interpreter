@@ -61,6 +61,7 @@ int lex();
 #define GT_OP 29
 #define LEFT_BR 30
 #define RIGHT_BR 31
+#define LIST 40
 #define ENTER 00
 
 #define SETQ 50 //SETQ token number
@@ -157,12 +158,35 @@ void eval(int token) {
 			string s(lexeme);//symbol string화하기
 			token = lex();
 			string v(lexeme);//value string화하기
-			SETQval newval;
-			newval.val = v;
-			newval.val_type = token;
-			symbols.insert(make_pair(s, newval));//값 저장하기
-			token = lex(); // 닫는 괄호 처리하기
-			cout << ">" << v << endl;
+
+			if (v[0] == '\'') { //리스트를 setq할때 
+				token = lex(); // 현재 왼쪽 괄호
+				string list;
+				token = lex(); //원소 찾기
+				list.append(lexeme);
+				token = lex();
+				while (token != RIGHT_PAREN) {
+						list.append(" ");
+						list.append(lexeme);
+						token = lex();
+				}
+				SETQval newval;
+				newval.val = list;
+				newval.val_type = LIST;
+				symbols.insert(make_pair(s, newval)); //값 저장하기
+				token = lex(); //닫는 괄호 처리하기
+				cout << ">" << "(" << list << ")" << endl;
+
+			}
+			else { //리스트 아닌걸 SEQ 할떄
+				SETQval newval;
+				newval.val = v;
+				newval.val_type = token;
+				symbols.insert(make_pair(s, newval));//값 저장하기
+				token = lex(); // 닫는 괄호 처리하기
+				cout << ">" << v << endl;
+			}
+			
 		}
 	}
 	else { //여기에 계속 다른 연산 추가
@@ -376,7 +400,13 @@ int main()
 				map<string, SETQval>::iterator it;
 				if (symbols.find(findsym) != symbols.end()) { //입력된 symbol이 이미 존재할때
 					it = symbols.find(findsym); //map에서 symbol을 찾아서
-					cout << ">" << it->second.val << endl; //그 value를 출력함.
+					
+					if (it->second.val_type == LIST) { //리스트의 경우
+						cout << ">" << "(" << it->second.val << ")" << endl;
+					}
+					else { //리스트 제외 나머지 경우
+ 						cout << ">" << it->second.val << endl; //그 value를 출력함.
+					}
 				}
 				else {//입력된 symbol이 존재하지 않을 때
 					cout << "symbol not found." << endl;
