@@ -298,6 +298,9 @@ int eval(int token) {
 		}
 		cout << list << endl;
 	}
+	else if (token == IF) { // if
+
+	}
 	else { //여기에 계속 다른 연산 추가
 
 	}
@@ -312,58 +315,45 @@ int eval(int token) {
 int lookup(char ch) {
 	switch (ch) {
 	case '(':
-		addChar();
 		nextToken = LEFT_PAREN;
 		break;
 	case ')':
-		addChar();
 		nextToken = RIGHT_PAREN;
 		break;
 	case '+':
-		addChar();
 		nextToken = ADD_OP;
 		break;
 	case '-':
-		addChar();
 		nextToken = SUB_OP;
 		break;
 	case '*':
-		addChar();
 		nextToken = MULT_OP;
 		break;
 	case '/':
-		addChar();
 		nextToken = DIV_OP;
 		break;
 	case '=':
-		addChar();
 		nextToken = ASSIGN_OP;
 		break;
 	case ';':
-		addChar();
 		nextToken = SEMI_COLON;
 		break;
 	case '<':
-		addChar();
 		nextToken = LT_OP;
 		break;
 	case '>':
-		addChar();
 		nextToken = GT_OP;
 		break;
 	case '{':
-		addChar();
 		nextToken = LEFT_BR;
 		break;
 	case '}':
-		addChar();
 		nextToken = RIGHT_BR;
 		break;
 	case '.':
 		nextToken = POINT;
 		break;
 	default:
-		addChar();
 		nextToken = EOF;
 		break;
 	}
@@ -456,7 +446,7 @@ int lex() {
 		}
 		break;
 
-		/* Parse integer literals */
+		/* Parse integer&float literals */
 	case DIGIT:
 		addChar();
 		getChar();
@@ -482,6 +472,7 @@ int lex() {
 		/* Parentheses and operators */
 	case UNKNOWN:
 		lookup(nextChar);
+		addChar();
 		getChar();
 		if (charClass == DIGIT && nextToken == SUB_OP) { //음수인식
 			while (charClass == DIGIT) {
