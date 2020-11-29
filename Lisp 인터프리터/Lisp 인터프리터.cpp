@@ -33,6 +33,9 @@ void addChar();
 void getChar();
 void getNonBlank();
 int lex();
+string FindSymbol(string findsym, int yongdo);
+float calc(int token);
+int eval(int token);
 
 /* Character classes */
 #define LETTER 0
@@ -42,7 +45,7 @@ int lex();
 /* Token codes */
 #define INT_LIT 10
 #define SYMBOL 11
-#define FOR 12
+#define POINT 12
 #define IF 13
 #define ELSE 14
 #define WHILE 15
@@ -77,8 +80,6 @@ typedef struct SETQval {
 map<string, SETQval> symbols;
 
 
-string FindSymbol(string findsym, int yongdo);
-
 float calc(int token) {//사칙연산
 	float result = 0;
 	int op = token;
@@ -90,15 +91,23 @@ float calc(int token) {//사칙연산
 				result += atof(lexeme);
 				token = lex();
 			}
-			else if (token == SYMBOL) { //symbol일때: 이미 존재하는 symbol이고, 그 값이 숫자일때
+			else if (token == SYMBOL) { //symbol일때: 변수도 연산 가능
 				if (symbols.find(lexeme) != symbols.end()) {//이미 존재하는 symbol일 때
 					if (symbols.find(lexeme)->second.val_type == INT_LIT) { //그 symbol의 값이 숫자일때
 						result += atof(lexeme);
 						token = lex();
 					}
-					
+					else {
+						cout << "Syntax Error : Symbol is not a number" << endl; //계산하려는 symbol이 숫자가 아닐때
+						return NAN;
+						break;
+					}
 				}
-				
+				else {
+					cout << "Syntax Error : Cannot Find symbol" << endl; //계산하려는 symbol이 존재하지 않을 때
+					return NAN;
+					break;
+				}
 			}
 			else if (token == LEFT_PAREN) {//안에 괄호 있을 때
 				token = lex();
@@ -114,6 +123,24 @@ float calc(int token) {//사칙연산
 			if (token == INT_LIT) {
 				result *= atof(lexeme);
 				token = lex();
+			}
+			else if (token == SYMBOL) { //symbol일때: 변수도 연산 가능
+				if (symbols.find(lexeme) != symbols.end()) {//이미 존재하는 symbol일 때
+					if (symbols.find(lexeme)->second.val_type == INT_LIT) { //그 symbol의 값이 숫자일때
+						result *= atof(lexeme);
+						token = lex();
+					}
+					else {
+						cout << "Syntax Error : Symbol is not a number" << endl; //계산하려는 symbol이 숫자가 아닐때
+						return NAN;
+						break;
+					}
+				}
+				else {
+					cout << "Syntax Error : Cannot Find symbol" << endl; //계산하려는 symbol이 존재하지 않을 때
+					return NAN;
+					break;
+				}
 			}
 			else if (token == LEFT_PAREN) {
 				token = lex();
@@ -131,6 +158,24 @@ float calc(int token) {//사칙연산
 				result /= atof(lexeme);
 				token = lex();
 			}
+			else if (token == SYMBOL) { //symbol일때: 변수도 연산 가능
+				if (symbols.find(lexeme) != symbols.end()) {//이미 존재하는 symbol일 때
+					if (symbols.find(lexeme)->second.val_type == INT_LIT) { //그 symbol의 값이 숫자일때
+						result /= atof(lexeme);
+						token = lex();
+					}
+					else {
+						cout << "Syntax Error : Symbol is not a number" << endl; //계산하려는 symbol이 숫자가 아닐때
+						return NAN;
+						break;
+					}
+				}
+				else {
+					cout << "Syntax Error : Cannot Find symbol" << endl; //계산하려는 symbol이 존재하지 않을 때
+					return NAN;
+					break;
+				}
+			}
 			else if (token == LEFT_PAREN) {
 				token = lex();
 				result /= calc(token);
@@ -147,6 +192,24 @@ float calc(int token) {//사칙연산
 				result -= atof(lexeme);
 				token = lex();
 			}
+			else if (token == SYMBOL) { //symbol일때: 변수도 연산 가능
+				if (symbols.find(lexeme) != symbols.end()) {//이미 존재하는 symbol일 때
+					if (symbols.find(lexeme)->second.val_type == INT_LIT) { //그 symbol의 값이 숫자일때
+						result -= atof(lexeme);
+						token = lex();
+					}
+					else {
+						cout << "Syntax Error : Symbol is not a number" << endl; //계산하려는 symbol이 숫자가 아닐때
+						return NAN;
+						break;
+					}
+				}
+				else {
+					cout << "Syntax Error : Cannot Find symbol" << endl; //계산하려는 symbol이 존재하지 않을 때
+					return NAN;
+					break;
+				}
+			}
 			else if (token == LEFT_PAREN) {
 				token = lex();
 				result -= calc(token);
@@ -156,13 +219,20 @@ float calc(int token) {//사칙연산
 		break;
 	default:
 		return -1;
+		break;
 	}
 	return result;
 }
 
 int eval(int token) {
 	if (token == ADD_OP || token == SUB_OP || token == MULT_OP || token == DIV_OP) { //사칙연산
-		cout << ">" << calc(token) << endl;
+		float calc_result = calc(token);
+		if (isnan(calc_result)) {
+			rewind(stdin);
+		}
+		else {
+			cout << ">" << calc_result << endl;
+		}
 	}
 	else if (token == SETQ) { //SETQ
 		token = lex();
@@ -289,6 +359,9 @@ int lookup(char ch) {
 		addChar();
 		nextToken = RIGHT_BR;
 		break;
+	case '.':
+		nextToken = POINT;
+		break;
 	default:
 		addChar();
 		nextToken = EOF;
@@ -354,10 +427,7 @@ int lex() {
 			addChar();
 			getChar();
 		}
-		if (strcmp(lexeme, "for") == 0) {
-			nextToken = FOR;
-		}
-		else if (strcmp(lexeme, "if") == 0) {
+		if (strcmp(lexeme, "if") == 0) {
 			nextToken = IF;
 		}
 		else if (strcmp(lexeme, "else") == 0) {
@@ -390,9 +460,21 @@ int lex() {
 	case DIGIT:
 		addChar();
 		getChar();
-		while (charClass == DIGIT) {
-			addChar();
-			getChar();
+		while (charClass == DIGIT || charClass == UNKNOWN) {
+			if (charClass == DIGIT) {
+				addChar();
+				getChar();
+			}
+			else if (charClass == UNKNOWN) {
+				lookup(nextChar);
+				if (nextToken == POINT) {
+					addChar();
+					getChar();
+				}
+				else {
+					break;
+				}
+			}
 		}
 		nextToken = INT_LIT;
 		break;
@@ -401,7 +483,7 @@ int lex() {
 	case UNKNOWN:
 		lookup(nextChar);
 		getChar();
-		if (charClass == DIGIT && nextToken == SUB_OP) {
+		if (charClass == DIGIT && nextToken == SUB_OP) { //음수인식
 			while (charClass == DIGIT) {
 				addChar();
 				getChar();
@@ -419,13 +501,12 @@ int lex() {
 		lexeme[3] = 0;
 		break;
 	} /* End of switch */
-	if ((out_fp = fopen("code.out", "a")) == NULL) {
+	/*if ((out_fp = fopen("code.out", "a")) == NULL) {
 		printf("ERROR - cannot open front.in \n");
 	}
 	else {
 		//printf("Next token is: %d, Next lexeme is %s\n", nextToken, lexeme);
-	}
-	/* Write to code.out */
+	}*/
 	return nextToken;
 } /* End of function lex */
 
@@ -461,7 +542,7 @@ int main()
 
 
 
-string FindSymbol(string findsym, int yong_do) {
+string FindSymbol(string findsym, int yong_do) { //사용자가 입력한 symbol의 값을 찾아주는 함수.
 
 	map<string, SETQval>::iterator it;
 	
@@ -482,7 +563,7 @@ string FindSymbol(string findsym, int yong_do) {
 			fflush(stdin);
 		}
 	}
-	else { // 이함수를 사용하는 용도가 main이 아니라 다른 작업일때 이 경우에는 콘손에 프린트가 필요 없음
+	else { // 이함수를 사용하는 용도가 main이 아니라 다른 작업일때 이 경우에는 콘솔에 프린트가 필요 없음
 
 		if (symbols.find(findsym) != symbols.end()) { //입력된 symbol이 이미 존재할때
 			it = symbols.find(findsym); //map에서 symbol을 찾아서
