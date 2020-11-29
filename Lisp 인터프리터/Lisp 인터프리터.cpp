@@ -77,6 +77,8 @@ typedef struct SETQval {
 map<string, SETQval> symbols;
 
 
+string FindSymbol(string findsym, int yongdo);
+
 float calc(int token) {//사칙연산
 	float result = 0;
 	int op = token;
@@ -148,7 +150,7 @@ float calc(int token) {//사칙연산
 	return result;
 }
 
-void eval(int token) {
+int eval(int token) {
 	if (token == ADD_OP || token == SUB_OP || token == MULT_OP || token == DIV_OP) { //사칙연산
 		cout << ">" << calc(token) << endl;
 	}
@@ -158,6 +160,11 @@ void eval(int token) {
 			string s(lexeme);//symbol string화하기
 			token = lex();
 			string v(lexeme);//value string화하기
+
+			if (v == ")") {
+				cout << "Syntax Error" << endl;
+				return 0;
+			}
 
 			if (v[0] == '\'') { //리스트를 setq할때 
 				token = lex(); // 현재 왼쪽 괄호
@@ -188,6 +195,28 @@ void eval(int token) {
 			}
 			
 		}
+	}
+	else if (token == LIST) { //LIST
+		string list;
+		token = lex();
+		while (token != RIGHT_PAREN) {
+			string v(lexeme);
+			//cout << "확인용" << v << endl;
+			if (v[0] == '\'') { //심볼이 아닌 경우
+				token = lex();
+				string a(lexeme);
+				list.append(a);
+			}
+			else {//심볼인 경우
+				string symbol(lexeme);
+				string v = FindSymbol(symbol, 2);
+				list.append(v);
+			}
+			token = lex();
+			if (token != RIGHT_PAREN)
+				list.append(" ");
+		}
+		cout << list << endl;
 	}
 	else { //여기에 계속 다른 연산 추가
 
@@ -339,6 +368,9 @@ int lex() {
 		else if (strcmp(lexeme, "SETQ") == 0) {
 			nextToken = SETQ;
 		}
+		else if (strcmp(lexeme, "LIST") == 0) {
+			nextToken = LIST;
+		}
 		else {
 			nextToken = SYMBOL;
 		}
@@ -397,21 +429,8 @@ int main()
 		else {//여는 괄호로 시작하지 않을 때: SYMBOL 혹은 syntax error 임. 둘이 구분해야함.
 			if (token == SYMBOL) {//symbol로 시작할 때: 존재하는 symbol의 값을 알고싶을때
 				string findsym(lexeme);
-				map<string, SETQval>::iterator it;
-				if (symbols.find(findsym) != symbols.end()) { //입력된 symbol이 이미 존재할때
-					it = symbols.find(findsym); //map에서 symbol을 찾아서
-					
-					if (it->second.val_type == LIST) { //리스트의 경우
-						cout << ">" << "(" << it->second.val << ")" << endl;
-					}
-					else { //리스트 제외 나머지 경우
- 						cout << ">" << it->second.val << endl; //그 value를 출력함.
-					}
-				}
-				else {//입력된 symbol이 존재하지 않을 때
-					cout << "symbol not found." << endl;
-					fflush(stdin);
-				}
+				FindSymbol(findsym, 1);
+
 			}
 			else {
 				printf("Syntax Error\n");
@@ -421,4 +440,48 @@ int main()
 	} while (nextToken != EOF);
 
 	return 0;
+}
+
+
+
+string FindSymbol(string findsym, int yong_do) {
+
+	map<string, SETQval>::iterator it;
+	
+	string returnval;
+	if (yong_do == 1) { //이 함수를 사용하는 용도가 main에서일때 
+		if (symbols.find(findsym) != symbols.end()) { //입력된 symbol이 이미 존재할때
+			it = symbols.find(findsym); //map에서 symbol을 찾아서
+
+			if (it->second.val_type == LIST) { //리스트의 경우
+				cout << ">" << "(" << it->second.val << ")" << endl;
+			}
+			else { //리스트 제외 나머지 경우
+				cout << ">" << it->second.val << endl; //그 value를 출력함.
+			}
+		}
+		else {//입력된 symbol이 존재하지 않을 때
+			cout << "symbol not found." << endl;
+			fflush(stdin);
+		}
+	}
+	else { // 이함수를 사용하는 용도가 main이 아니라 다른 작업일때 이 경우에는 콘손에 프린트가 필요 없음
+
+		if (symbols.find(findsym) != symbols.end()) { //입력된 symbol이 이미 존재할때
+			it = symbols.find(findsym); //map에서 symbol을 찾아서
+
+			if (it->second.val_type == LIST) { //리스트의 경우
+				returnval.append("(");
+				returnval.append(it->second.val);
+				returnval.append(")");
+			}
+			else { //리스트 제외 나머지 경우
+				returnval.append(it->second.val);
+			}
+		}
+		else {//입력된 symbol이 존재하지 않을 때
+			returnval.append(" "); //이떄 공백을 리턴해서 외부에서 처리하도록함 
+		}
+	}	
+	return returnval;
 }
