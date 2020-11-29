@@ -1,0 +1,11 @@
+(SETQ X 5)
+(LIST 'X X 'Y)
+
+(CAR '(X Y Z))
+(CAR '((X) Y Z))
+
+(CDR '(X Y Z))
+
+(SETQ X '(1 2 3))
+(CAR (CDR (CDR X)))
+(CADDR X) //위와 동일 통합 명령으로 사용가능

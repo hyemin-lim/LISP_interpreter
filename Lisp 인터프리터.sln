@@ -5,6 +5,11 @@ VisualStudioVersion = 16.0.30309.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lisp 인터프리터", "Lisp 인터프리터\Lisp 인터프리터.vcxproj", "{B6A7C42C-AE7E-4341-9086-035DE54165DF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4B300DE3-536E-45FA-BCAE-1397CAF24207}"
+	ProjectSection(SolutionItems) = preProject
+		testcase.txt = testcase.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
