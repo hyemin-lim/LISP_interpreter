@@ -86,9 +86,19 @@ float calc(int token) {//사칙연산
 	case ADD_OP:
 		token = lex();
 		while (token != RIGHT_PAREN) {
-			if (token == INT_LIT) {
+			if (token == INT_LIT) {//숫자일때
 				result += atof(lexeme);
 				token = lex();
+			}
+			else if (token == SYMBOL) { //symbol일때: 이미 존재하는 symbol이고, 그 값이 숫자일때
+				if (symbols.find(lexeme) != symbols.end()) {//이미 존재하는 symbol일 때
+					if (symbols.find(lexeme)->second.val_type == INT_LIT) { //그 symbol의 값이 숫자일때
+						result += atof(lexeme);
+						token = lex();
+					}
+					
+				}
+				
 			}
 			else if (token == LEFT_PAREN) {//안에 괄호 있을 때
 				token = lex();
@@ -185,7 +195,7 @@ int eval(int token) {
 				cout << ">" << "(" << list << ")" << endl;
 
 			}
-			else { //리스트 아닌걸 SEQ 할떄
+			else { //리스트 아닌걸 SETQ 할떄
 				SETQval newval;
 				newval.val = v;
 				newval.val_type = token;
@@ -391,6 +401,13 @@ int lex() {
 	case UNKNOWN:
 		lookup(nextChar);
 		getChar();
+		if (charClass == DIGIT && nextToken == SUB_OP) {
+			while (charClass == DIGIT) {
+				addChar();
+				getChar();
+			}
+			nextToken = INT_LIT;
+		}
 		break;
 
 		/* EOF */
