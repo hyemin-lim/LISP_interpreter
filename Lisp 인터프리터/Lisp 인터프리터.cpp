@@ -631,7 +631,6 @@ int eval(int token) {
 		map<string, SETQval>::iterator i;
 		string s1, s2;
 		int t1, t2;
-		bool mark = false;
 
 		token = lex();
 		p1 = lexeme;
@@ -819,30 +818,122 @@ int eval(int token) {
 		//cout << "t2 ----> " << t2 << endl;
 
 	}
-	else if (token == LT_OP) {
+	else if (token == LT_OP) {		// --> real number만 가능.
+		string p1, p2;
+		map<string, SETQval>::iterator i;
+		string s1, s2;
+		int t1, t2;
 
-		// DIGIT < DIGIT
-		// DIGIT < SYMBOL
-		// SYMBOL < DIGIT
-		// SYMBOL < SYMBOL
+		token = lex();
+		p1 = lexeme;
+		t1 = token;
+		if (t1 == SYMBOL) {
+			string findsym(lexeme);
+			i = FindSymbol(findsym, 2);
+			s1 = i->second.val;
+		}
 
+		token = lex();
+		p2 = lexeme;
+		t2 = token;
+		if (t2 == SYMBOL) {
+			string findsym(lexeme);
+			i = FindSymbol(findsym, 2);
+			s2 = i->second.val;
+		}
 
-		//if ()
-		//	cout << "> T" << endl;
-		//else
-		//	cout << "> F" << endl;
+		// 계산
+		if (t1 == INT_LIT && t2 == INT_LIT) {		// DIGIT < DIGIT
+			if (atoi(p1.c_str()) < atoi(p2.c_str()))
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+		else if (t1 == INT_LIT && t2 == SYMBOL) {		// DIGIT < SYMBOL
+			if (atoi(p1.c_str()) < atoi(s2.c_str()))
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+		else if (t1 == SYMBOL && t2 == INT_LIT) {		// SYMBOL < DIGIT
+			if (atoi(s1.c_str()) < atoi(p2.c_str()))
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+		else if (t1 == SYMBOL && t2 == SYMBOL) {			// SYMBOL < SYMBOL
+			if (atoi(s1.c_str()) < atoi(s2.c_str()))
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+
+		//cout << "p1 ----> " << p1 << endl;
+		//cout << "p2 ----> " << p2 << endl;
+		//cout << "s1 ----> " << s1 << endl;
+		//cout << "s2 ----> " << s2 << endl;
+		//cout << "t1 ----> " << t1 << endl;
+		//cout << "t2 ----> " << t2 << endl;
+
 	}
 	else if (token == GOE_OP) {
 
-		// DIGIT <= DIGIT
-		// DIGIT <= SYMBOL
-		// SYMBOL <= DIGIT
-		// SYMBOL <= SYMBOL
+		string p1, p2;
+		map<string, SETQval>::iterator i;
+		string s1, s2;
+		int t1, t2;
 
-		//if ()
-		//	cout << "> T" << endl;
-		//else
-		//	cout << "> F" << endl;
+		token = lex();
+		p1 = lexeme;
+		t1 = token;
+		if (t1 == SYMBOL) {
+			string findsym(lexeme);
+			i = FindSymbol(findsym, 2);
+			s1 = i->second.val;
+		}
+
+		token = lex();
+		p2 = lexeme;
+		t2 = token;
+		if (t2 == SYMBOL) {
+			string findsym(lexeme);
+			i = FindSymbol(findsym, 2);
+			s2 = i->second.val;
+		}
+
+		// 계산
+		if (t1 == INT_LIT && t2 == INT_LIT) {		// DIGIT < DIGIT
+			if (atoi(p1.c_str()) >= atoi(p2.c_str()))
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+		else if (t1 == INT_LIT && t2 == SYMBOL) {		// DIGIT < SYMBOL
+			if (atoi(p1.c_str()) >= atoi(s2.c_str()))
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+		else if (t1 == SYMBOL && t2 == INT_LIT) {		// SYMBOL < DIGIT
+			if (atoi(s1.c_str()) >= atoi(p2.c_str()))
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+		else if (t1 == SYMBOL && t2 == SYMBOL) {			// SYMBOL < SYMBOL
+			if (atoi(s1.c_str()) >= atoi(s2.c_str()))
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+
+		//cout << "p1 ----> " << p1 << endl;
+		//cout << "p2 ----> " << p2 << endl;
+		//cout << "s1 ----> " << s1 << endl;
+		//cout << "s2 ----> " << s2 << endl;
+		//cout << "t1 ----> " << t1 << endl;
+		//cout << "t2 ----> " << t2 << endl;
+
 	}
 	else if (token == STRINGP) {
 		//if ()
