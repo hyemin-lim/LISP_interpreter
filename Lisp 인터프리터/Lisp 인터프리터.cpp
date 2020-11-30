@@ -528,12 +528,13 @@ int eval(int token) {
 		token = lex();
 		p1 = lexeme;
 		t1 = token;
-		if (token == QUOTE) {		// 리스트가 비교인자로 들어오는 경우, '(리스트) 를 인식
+		if (token == QUOTE) {			// 첫번째 비교인자가 '0 같은 경우 
 			token = lex();
 			p1 += lexeme;
-			if (token == LEFT_PAREN) {			// 첫번째 비교인자가 '0 같은 경우 
+			if (token == LEFT_PAREN) {		// 리스트가 비교인자로 들어오는 경우, '(리스트) 를 인식
 				while (token != RIGHT_PAREN) {
 					token = lex();
+					p1 += " ";
 					p1 += lexeme;
 				}
 			}
@@ -547,12 +548,13 @@ int eval(int token) {
 		token = lex();
 		p2 = lexeme;
 		t2 = token;
-		if (token == QUOTE) {		// 리스트가 비교인자로 들어오는 경우, '(리스트) 를 인식
+		if (token == QUOTE) {	// 첫번째 비교인자가 '0 같은 경우 	
 			token = lex();
 			p2 += lexeme;
-			if (token == LEFT_PAREN) {			// 첫번째 비교인자가 '0 같은 경우 
+			if (token == LEFT_PAREN) {			// 리스트가 비교인자로 들어오는 경우, '(리스트) 를 인식
 				while (token != RIGHT_PAREN) {
 					token = lex();
+					p2 += " ";
 					p2 += lexeme;
 				}
 			}
@@ -562,9 +564,6 @@ int eval(int token) {
 			i = FindSymbol(findsym, 2);
 			s2 = i->second.val;
 		}
-
-		p1 = p1.substr(0, p1.length() - 1);
-		p1 += ")";
 
 		// EQUAL 함수로 들어올 수 있는 파라미터의 경우의 수.
 		if (t1 == INT_LIT && t2 == INT_LIT) {		// DIGIT == DIGIT
@@ -599,22 +598,23 @@ int eval(int token) {
 			else
 				cout << "> F" << endl;
 		}
-		else if (t1 == INT_LIT && t2 == QUOTE) {		// DIGIT == LIST 
-			p1 += ")";
-			p2 = p2.substr(1, p2.length() - 1);
+		else if (t1 == INT_LIT && t2 == QUOTE) {		// DIGIT == LIST -->  (EQUAL 0 '0)
+			p2 = p2.substr(2, p2.length() - 1);
 			if (p1.compare(p2) == 0)
 				cout << "> T" << endl;
 			else
 				cout << "> F" << endl;
 		}
-		else if (t1 == QUOTE && t2 == INT_LIT) {		// LIST == DIGIT
-			p1 = p1.substr(1, p1.length()-1);
+		else if (t1 == QUOTE && t2 == INT_LIT) {		// LIST == DIGIT -->  (EQUAL '0 0)
+			p1 = p1.substr(2, p1.length()-1);
 			if (p1.compare(p2) == 0)
 				cout << "> T" << endl;
 			else
 				cout << "> F" << endl;
 		}
 		else if (t1 == SYMBOL && t2 == QUOTE ) {		// SYMBOL == LIST
+			s1.insert(0, "'( ");
+			s1.append(" )");
 			p2 = p2.substr(1, p2.length() - 1);
 			if (s1.compare(p2) == 0)
 				cout << "> T" << endl;
@@ -622,6 +622,8 @@ int eval(int token) {
 				cout << "> F" << endl;
 		}
 		else if (t1 == QUOTE && t2 == SYMBOL) {		// LIST == SYMBOL
+			s2.insert(0, "'( ");
+			s2.append(" )");
 			p1 = p1.substr(1, p1.length() - 1);
 			if (p1.compare(s2) == 0)
 				cout << "> T" << endl;
