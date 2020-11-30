@@ -30,4 +30,5 @@
 - STRINGP
 ### <조건문> - 2개
 - ~~IF~~
+~~(+ PRINT)~~
 - COND
