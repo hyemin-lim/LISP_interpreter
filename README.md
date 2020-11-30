@@ -19,12 +19,12 @@
 - REMOVE
 - SUBST
 ### <Predicate 함수> - 9개
-- ATOM
-- NULL
-- NUMBERP
-- ZEROP
-- MINUSP
-- EQUAL
+- ~~ATOM~~
+- ~~~NULL~~~
+- ~~~NUMBERP~~~
+- ~~~ZEROP~~~
+- ~~~MINUSP~~~
+- ~~~EQUAL~~~
 - <
 - \>=
 - STRINGP
