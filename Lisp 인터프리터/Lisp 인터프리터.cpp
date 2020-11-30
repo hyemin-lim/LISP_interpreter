@@ -47,7 +47,7 @@ int eval(int token);
 #define SYMBOL 11
 #define POINT 12
 #define IF 13
-#define ELSE 14
+#define PRINT 14
 #define WHILE 15
 #define DO 16
 #define INT 17
@@ -232,6 +232,7 @@ int eval(int token) {
 		}
 		else {
 			cout << ">" << calc_result << endl;
+			return 1;
 		}
 	}
 	else if (token == SETQ) { //SETQ
@@ -243,7 +244,7 @@ int eval(int token) {
 
 			if (v == ")") {
 				cout << "Syntax Error" << endl;
-				return 0;
+				return -1;
 			}
 
 			if (v[0] == '\'') { //리스트를 setq할때 
@@ -290,16 +291,88 @@ int eval(int token) {
 			else {//심볼인 경우
 				string symbol(lexeme);
 				string v = FindSymbol(symbol, 2);
-				list.append(v);
+				if (v == " ") { // 존재하지 않는 symbol일 때
+					cout << "Error : variable " << symbol << "is unbound" << endl;
+					rewind(stdin);
+					return -1;
+				}
+				else {
+					list.append(v);
+				}
 			}
 			token = lex();
 			if (token != RIGHT_PAREN)
 				list.append(" ");
 		}
-		cout << list << endl;
+		cout << "(" << list << ")" << endl;
 	}
 	else if (token == IF) { // if
+		int test_expression = 1;
+		token = lex();
+		if (token == LEFT_PAREN) {
+			token = lex();
+			test_expression = eval(token); // test expression : 참거짓을 판단해야함. 가정(~한다면)
+			if (test_expression == 1) {//test expression이 참일때
+				token = lex();
+				if (token == LEFT_PAREN) {
+					token = lex();
+					eval(token);
+				}
+				else {
+					cout << "Syntax Error : too few elements in IF statement" << endl;
+					rewind(stdin);
+					return -1;
+				}
+			}
+			else if (test_expression == 0) {//test expression 이 거짓일때
+				token = lex();
+				while (token != RIGHT_PAREN) {
+					token = lex();
+				}
+				token = lex();
+				if (token == LEFT_PAREN) {
+					token = lex();
+					eval(token);
+				}
+				else {
+					//거짓일 때 실행할 expression은 없어도 된다.
+				}
+			}
+			else { //참거짓을 가릴 수 없는 evaluation일 때
+				cout << "Error : test expression is not correct" << endl;
+				rewind(stdin);
+			}
+		}
+		else if (token == PRINT) {
+			token = lex();
+			if (token == SYMBOL) {
+				string l(lexeme);
+				string sym_val = FindSymbol(l, 2);
+				if (sym_val == " ") {
+					cout << "Error : variable " << l << "is unbound" << endl;
+					rewind(stdin);
+					return -1;
+				}
+				else {
+					cout << ">" << sym_val << endl;
+				}
+			}
+			else if (token == INT_LIT) {
+				cout << ">" << atof(lexeme) << endl;
+			}
+			else if () {//리스트 프린트?
 
+			}
+			else {
+				cout << "Syntax Error : cannot print" << endl;
+				rewind(stdin);
+				return -1;
+			}
+		}
+		else {
+			cout << "Syntax Error" << endl;
+			rewind(stdin);
+		}
 	}
 	else { //여기에 계속 다른 연산 추가
 
@@ -420,9 +493,6 @@ int lex() {
 		if (strcmp(lexeme, "if") == 0) {
 			nextToken = IF;
 		}
-		else if (strcmp(lexeme, "else") == 0) {
-			nextToken = ELSE;
-		}
 		else if (strcmp(lexeme, "while") == 0) {
 			nextToken = WHILE;
 		}
@@ -440,6 +510,12 @@ int lex() {
 		}
 		else if (strcmp(lexeme, "LIST") == 0) {
 			nextToken = LIST;
+		}
+		else if (strcmp(lexeme, "IF") == 0) {
+			nextToken = IF;
+		}
+		else if (strcmp(lexeme, "PRINT") == 0) {
+			nextToken = PRINT;
 		}
 		else {
 			nextToken = SYMBOL;
