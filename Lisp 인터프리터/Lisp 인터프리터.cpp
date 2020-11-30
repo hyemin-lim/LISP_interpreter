@@ -49,7 +49,7 @@ int eval(int token);
 #define POINT 12
 #define IF 13
 #define PRINT 14
-#define WHILE 15
+#define COND 15
 #define DO 16
 #define INT 17
 #define FLOAT 18
@@ -85,6 +85,7 @@ int eval(int token);
 #define NIL 89
 #define GOE_OP 32
 #define QUOTE 33
+#define LOE_OP 34
 
 //multiple variable을 넣을 수 있는 map 구현
 //string 과 map 을 사용하였고 symbol과 그 symbol에 저장될 SETQval로 구성됨.
@@ -330,7 +331,7 @@ int eval(int token) {
 		token = lex();
 		string num(lexeme);
 		int n = atoi(num.c_str()); //숫자로 변환
-		
+
 		token = lex();
 		string list;
 		if (lexeme[0] == '\'') {//리스트 바로 입력일때 
@@ -353,7 +354,7 @@ int eval(int token) {
 			list = it->second.val;
 		}
 
-		
+
 		for (int i = 0; i < n; i++) {
 
 			int cnt = 0;
@@ -367,14 +368,14 @@ int eval(int token) {
 			}
 			list = list.erase(0, cnt + 1);
 		}
-		cout << list.substr(0,2) << endl;
+		cout << list.substr(0, 2) << endl;
 
 		token = lex(); //우괼호 처리
 	}
-	
-	
-	
-	
+
+
+
+
 	else if (token == IF) { // if
 		int test_expression = 1;
 		token = lex();
@@ -412,38 +413,41 @@ int eval(int token) {
 				rewind(stdin);
 			}
 		}
-		else if (token == PRINT) {
-			token = lex();
-			if (token == SYMBOL) {
-				string l(lexeme);
-				map<string, SETQval>::iterator sym_val = FindSymbol(l, 2);
-				if (sym_val == symbols.end()) {
-					cout << "Error : variable " << l << "is unbound" << endl;
-					rewind(stdin);
-					return -1;
-				}
-				else {
-					cout << ">" << sym_val->second.val << endl;
-				}
-			}
-			else if (token == INT_LIT) {
-				cout << ">" << atof(lexeme) << endl;
-			}
-			/*else if () {//리스트 프린트?
-				//리스트를 출력해야 하면 '를 토큰으로 만들어야 인식이 가능할듯...??
-				//'(x y z)같은 형태의 리스트와
-				//(LIST X Y Z) 같은 형태의 리스트를 모두 인식 후 출력할 수 있게 구현.
-			}*/
-			else {
-				cout << "Syntax Error : cannot print" << endl;
-				rewind(stdin);
-				return -1;
-			}
-		}
 		else {
 			cout << "Syntax Error" << endl;
 			rewind(stdin);
 		}
+	}
+	else if (token == PRINT) {
+		token = lex();
+		if (token == SYMBOL) {
+			string l(lexeme);
+			map<string, SETQval>::iterator sym_val = FindSymbol(l, 2);
+			if (sym_val == symbols.end()) {
+				cout << "Error : variable " << l << "is unbound" << endl;
+				rewind(stdin);
+				return -1;
+			}
+			else {
+				cout << ">" << sym_val->second.val << endl;
+			}
+		}
+		else if (token == INT_LIT) {
+			cout << ">" << atof(lexeme) << endl;
+		}
+		/*else if () {//리스트 프린트?
+			//리스트를 출력해야 하면 '를 토큰으로 만들어야 인식이 가능할듯...??
+			//'(x y z)같은 형태의 리스트와
+			//(LIST X Y Z) 같은 형태의 리스트를 모두 인식 후 출력할 수 있게 구현.
+		}*/
+		else {
+			cout << "Syntax Error : cannot print" << endl;
+			rewind(stdin);
+			return -1;
+		}
+	}
+	else if (token == COND) {
+		token = lex();
 	}
 	else if (token == ATOM) {
 		token = lex();
@@ -590,7 +594,7 @@ int eval(int token) {
 			else
 				cout << "> F" << endl;
 		}
-		else if (t1 == QUOTE && t2 == QUOTE){	// LIST == LIST	    --->    (EQUAL '(1 2) '(1 3)) 같은 경우
+		else if (t1 == QUOTE && t2 == QUOTE) {	// LIST == LIST	    --->    (EQUAL '(1 2) '(1 3)) 같은 경우
 			p2 = p2.substr(1, p2.length() - 1);
 			p1 = p1.substr(1, p1.length() - 1);
 			if ((p1.compare(p2) == 0))
@@ -606,13 +610,13 @@ int eval(int token) {
 				cout << "> F" << endl;
 		}
 		else if (t1 == QUOTE && t2 == INT_LIT) {		// LIST == DIGIT -->  (EQUAL '0 0)
-			p1 = p1.substr(2, p1.length()-1);
+			p1 = p1.substr(2, p1.length() - 1);
 			if (p1.compare(p2) == 0)
 				cout << "> T" << endl;
 			else
 				cout << "> F" << endl;
 		}
-		else if (t1 == SYMBOL && t2 == QUOTE ) {		// SYMBOL == LIST
+		else if (t1 == SYMBOL && t2 == QUOTE) {		// SYMBOL == LIST
 			s1.insert(0, "'( ");
 			s1.append(" )");
 			p2 = p2.substr(1, p2.length() - 1);
@@ -629,8 +633,8 @@ int eval(int token) {
 				cout << "> T" << endl;
 			else
 				cout << "> F" << endl;
-		}										
-														
+		}
+
 		//cout << "p1 ----> " << p1 << endl;
 		//cout << "p2 ----> " << p2 << endl;
 		//cout << "s1 ----> " << s1 << endl;
@@ -714,7 +718,7 @@ string ExcuteCARCDR(int token) {
 				string v = ExcuteCARCDR(token);
 				int cnt = 0;
 				int vlen = v.length();
-				for ( ; cnt < vlen; cnt++) {
+				for (; cnt < vlen; cnt++) {
 					if (v[cnt] == ' ') break;
 				}
 				if (cnt == vlen) //처번쨰 원소가 전부인 경우
@@ -779,7 +783,7 @@ string ExcuteCARCDR(int token) {
 			return v;
 		}
 		else { // 나머지
-		
+
 		}
 		if (ultimate == "^C[AD]R") {
 
@@ -960,11 +964,8 @@ int lex() {
 			addChar();
 			getChar();
 		}
-		if (strcmp(lexeme, "if") == 0) {
-			nextToken = IF;
-		}
-		else if (strcmp(lexeme, "while") == 0) {
-			nextToken = WHILE;
+		if (stricmp(lexeme, "COND") == 0) {
+			nextToken = COND;
 		}
 		else if (strcmp(lexeme, "do") == 0) {
 			nextToken = DO;
@@ -975,58 +976,52 @@ int lex() {
 		else if (strcmp(lexeme, "float") == 0) {
 			nextToken = FLOAT;
 		}
-		else if (strcmp(lexeme, "SETQ") == 0) {
+		else if (stricmp(lexeme, "SETQ") == 0) {
 			nextToken = SETQ;
 		}
-		else if (strcmp(lexeme, "LIST") == 0) {
+		else if (stricmp(lexeme, "LIST") == 0) {
 			nextToken = LIST;
 		}
-		else if (strcmp(lexeme, "IF") == 0) {
+		else if (stricmp(lexeme, "IF") == 0) {
 			nextToken = IF;
 		}
-		else if (strcmp(lexeme, "PRINT") == 0) {
+		else if (stricmp(lexeme, "PRINT") == 0) {
 			nextToken = PRINT;
 		}
-		else if (strcmp(lexeme, "CAR") == 0) {
+		else if (stricmp(lexeme, "CAR") == 0) {
 			nextToken = CAR;
 		}
-		else if (strcmp(lexeme, "CDR") == 0) {
+		else if (stricmp(lexeme, "CDR") == 0) {
 			nextToken = CDR;
 		}
-		else if (regex_match(lexeme,card)) {
+		else if (regex_match(lexeme, card)) {
 			nextToken = CADR;
 		}
-		else if (strcmp(lexeme, "NTH") == 0) {
+		else if (stricmp(lexeme, "NTH") == 0) {
 			nextToken = NTH;
 		}
-		else if (strcmp(lexeme, "ATOM") == 0) {
+		else if (stricmp(lexeme, "ATOM") == 0) {
 			nextToken = ATOM;
 		}
-		else if (strcmp(lexeme, "NULL") == 0) {
+		else if (stricmp(lexeme, "NULL") == 0) {
 			nextToken = NULL;
 		}
-		else if (strcmp(lexeme, "nil") == 0) {
+		else if (stricmp(lexeme, "nil") == 0) {
 			nextToken = NIL;
 		}
-		else if (strcmp(lexeme, "NUMBERP") == 0) {
+		else if (stricmp(lexeme, "NUMBERP") == 0) {
 			nextToken = NUMBERP;
 		}
-		else if (strcmp(lexeme, "ZEROP") == 0) {
+		else if (stricmp(lexeme, "ZEROP") == 0) {
 			nextToken = ZEROP;
 		}
-		else if (strcmp(lexeme, "MINUSP") == 0) {
+		else if (stricmp(lexeme, "MINUSP") == 0) {
 			nextToken = MINUSP;
 		}
-		else if (strcmp(lexeme, "EQUAL") == 0) {
+		else if (stricmp(lexeme, "EQUAL") == 0) {
 			nextToken = EQUAL;
 		}
-		else if (strcmp(lexeme, "<") == 0) {
-			nextToken = LT_OP;
-		}
-		else if (strcmp(lexeme, ">=") == 0) {
-			nextToken = GOE_OP;
-		}
-		else if (strcmp(lexeme, "STRINGP") == 0) {
+		else if (stricmp(lexeme, "STRINGP") == 0) {
 			nextToken = STRINGP;
 		}
 		else if (strcmp(lexeme, "'") == 0) {
@@ -1071,6 +1066,28 @@ int lex() {
 				getChar();
 			}
 			nextToken = INT_LIT;
+		}
+		else if (charClass == UNKNOWN && nextToken == LT_OP) { //<= 인식
+			lookup(nextChar);
+			if (nextToken == ASSIGN_OP) {
+				addChar();
+				getChar();
+				nextToken = LOE_OP;
+			}
+			else {
+				nextToken = lookup(lexeme[0]);
+			}
+		}
+		else if (charClass == UNKNOWN && nextToken == GT_OP) { //>= 인식
+			lookup(nextChar);
+			if (nextToken == ASSIGN_OP) {
+				addChar();
+				getChar();
+				nextToken = GOE_OP;
+			}
+			else {
+				nextToken = lookup(lexeme[0]);
+			}
 		}
 		break;
 
@@ -1126,7 +1143,7 @@ int main()
 map<string, SETQval>::iterator FindSymbol(string findsym, int yong_do) { //사용자가 입력한 symbol의 값을 찾아주는 함수.map<string, SETQval>::
 
 	map<string, SETQval>::iterator it;
-	
+
 	if (yong_do == 1) { //이 함수를 사용하는 용도가 main에서일때 
 		if (symbols.find(findsym) != symbols.end()) { //입력된 symbol이 이미 존재할때
 			it = symbols.find(findsym); //map에서 symbol을 찾아서
@@ -1152,6 +1169,6 @@ map<string, SETQval>::iterator FindSymbol(string findsym, int yong_do) { //사�
 		else {//입력된 symbol이 존재하지 않을 때
 			it = symbols.end();
 		}
-	}	
+	}
 	return it;
 }
