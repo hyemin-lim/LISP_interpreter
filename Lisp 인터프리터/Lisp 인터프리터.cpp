@@ -116,7 +116,7 @@ float calc(int token) {//사칙연산
 			else if (token == SYMBOL) { //symbol일때: 변수도 연산 가능
 				if (symbols.find(lexeme) != symbols.end()) {//이미 존재하는 symbol일 때
 					if (symbols.find(lexeme)->second.val_type == INT_LIT) { //그 symbol의 값이 숫자일때
-						result += atof(lexeme);
+						result += atof(symbols.find(lexeme)->second.val.c_str());
 						token = lex();
 					}
 					else {
@@ -254,7 +254,8 @@ int eval(int token) {
 		}
 		else {
 			cout << ">" << calc_result << endl;
-			return 1;
+			token = lex(); //닫는 괄호 처리하기
+			return -1;
 		}
 	}
 	else if (token == SETQ) { //SETQ
@@ -448,13 +449,21 @@ int eval(int token) {
 	}
 	else if (token == COND) {
 		token = lex();
+
 	}
 	else if (token == ATOM) {
-		token = lex();
-		if (token == SYMBOL)
+		token = lex(); //symbol
+		if (token == SYMBOL) {
 			cout << "> T" << endl;
-		else
+			token = lex(); //닫는 괄호 처리
+			return 1;
+		}
+		else {
 			cout << "> F" << endl;
+			token = lex(); //닫는 괄호 처리
+			return 0;
+		}
+		
 	}
 	else if (token == NULL) {
 		token = lex();
@@ -465,10 +474,16 @@ int eval(int token) {
 			i = FindSymbol(findsym, 2);
 			s = i->second.val;
 		}
-		if (s == "nil" || token == NIL)
+		if (s == "nil" || token == NIL){
 			cout << "> T" << endl;
-		else
+			token = lex(); // 닫는 괄호 처리
+			return 1;
+		}
+		else{
 			cout << "> F" << endl;
+			token = lex(); //닫는 괄호 처리
+			return 0;
+		}
 	}
 	else if (token == NUMBERP) {
 		token = lex();
