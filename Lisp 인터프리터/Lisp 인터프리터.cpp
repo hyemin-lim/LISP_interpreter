@@ -68,6 +68,7 @@ int eval(int token);
 #define CAR 41
 #define CDR 42
 #define CADR 43
+#define NTH 44
 #define ENTER 00
 
 #define SETQ 50 //SETQ token number
@@ -311,6 +312,51 @@ int eval(int token) {
 	}
 	else if (token == CAR || token == CDR || token == CADR) { //CAR 과 CDR 처리
 		ExcuteCARCDR(token);
+	}
+	else if (token == NTH) {
+		token = lex();
+		string num(lexeme);
+		int n = atoi(num.c_str()); //숫자로 변환
+		
+		token = lex();
+		string list;
+		if (lexeme[0] == '\'') {//리스트 바로 입력일때 
+			token = lex();
+			if (token != LEFT_PAREN) {
+				cout << "ERROR" << endl;
+				token = lex(); //우괄호 처리
+				return 0;
+			}
+			token = lex();
+			while (token != RIGHT_PAREN) {
+				list.append(lexeme);
+				token = lex();
+				if (token == RIGHT_PAREN) break;
+				list.append(" ");
+			}
+		}
+		else { //심볼일때 
+			map<string, SETQval>::iterator it = FindSymbol(lexeme, 2);
+			list = it->second.val;
+		}
+
+		
+		for (int i = 0; i < n; i++) {
+
+			int cnt = 0;
+			while (list[cnt] != ' ') {
+				if (cnt >= list.length()) {
+					cout << "NIL" << endl;
+					lex(); //우괄호처리
+					return 0;
+				}
+				cnt++;
+			}
+			list = list.erase(0, cnt + 1);
+		}
+		cout << list.substr(0,2) << endl;
+
+		token = lex(); //우괼호 처리
 	}
 	
 	
@@ -702,6 +748,9 @@ int lex() {
 		}
 		else if (regex_match(lexeme,card)) {
 			nextToken = CADR;
+		}
+		else if (strcmp(lexeme, "NTH") == 0) {
+			nextToken = NTH;
 		}
 		else {
 			nextToken = SYMBOL;

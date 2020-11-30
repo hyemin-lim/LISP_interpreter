@@ -9,3 +9,8 @@
 (SETQ X '(1 2 3))
 (CAR (CDR (CDR X)))
 (CADDR X) //위와 동일 통합 명령으로 사용가능
+
+(NTH 4 '(0 1 2 3 4 5 6)) N번째 반환 0부터 카운트 즉4 반환
+(NTH 3 '(A B)) NIL
+(NTH 3 'A) ERROR
+
