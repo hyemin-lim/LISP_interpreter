@@ -9,7 +9,7 @@
 - ~~CAR~~
 - ~~CDR~~
 ~~(CAR와 CDR 혼합 사용 가능)~~
-- NTH
+- ~~NTH~~
 - CONS
 - REVERSE
 - APPEND
