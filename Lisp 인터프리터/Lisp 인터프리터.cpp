@@ -14,6 +14,7 @@
 #include <string>
 #include <iostream>
 #include <map>
+#include <regex>
 #pragma warning(disable: 4996)
 using namespace std;
 
@@ -33,7 +34,6 @@ void addChar();
 void getChar();
 void getNonBlank();
 int lex();
-string FindSymbol(string findsym, int yongdo);
 float calc(int token);
 int eval(int token);
 
@@ -65,6 +65,9 @@ int eval(int token);
 #define LEFT_BR 30
 #define RIGHT_BR 31
 #define LIST 40
+#define CAR 41
+#define CDR 42
+#define CADR 43
 #define ENTER 00
 
 #define SETQ 50 //SETQ token number
@@ -78,6 +81,10 @@ typedef struct SETQval {
 }SETQval;
 
 map<string, SETQval> symbols;
+
+//함수선언
+map<string, SETQval>::iterator FindSymbol(string findsym, int yongdo);
+string ExcuteCARCDR(int token);
 
 
 float calc(int token) {//사칙연산
@@ -241,7 +248,6 @@ int eval(int token) {
 			string s(lexeme);//symbol string화하기
 			token = lex();
 			string v(lexeme);//value string화하기
-
 			if (v == ")") {
 				cout << "Syntax Error" << endl;
 				return -1;
@@ -290,6 +296,7 @@ int eval(int token) {
 			}
 			else {//심볼인 경우
 				string symbol(lexeme);
+<<<<<<< HEAD
 				string v = FindSymbol(symbol, 2);
 				if (v == " ") { // 존재하지 않는 symbol일 때
 					cout << "Error : variable " << symbol << "is unbound" << endl;
@@ -299,6 +306,14 @@ int eval(int token) {
 				else {
 					list.append(v);
 				}
+=======
+				map<string, SETQval>::iterator it = FindSymbol(symbol, 2);
+				if (it == symbols.end()) {
+					cout << "No" << lexeme << "Symbol exist" << endl;
+					while (token != RIGHT_PAREN) token = lex(); //나머지 토큰들 다 처리하기
+				}
+				list.append(it->second.val);
+>>>>>>> main
 			}
 			token = lex();
 			if (token != RIGHT_PAREN)
@@ -306,6 +321,13 @@ int eval(int token) {
 		}
 		cout << "(" << list << ")" << endl;
 	}
+	else if (token == CAR || token == CDR || token == CADR) { //CAR 과 CDR 처리
+		ExcuteCARCDR(token);
+	}
+	
+	
+	
+	
 	else if (token == IF) { // if
 		int test_expression = 1;
 		token = lex();
@@ -378,6 +400,168 @@ int eval(int token) {
 
 	}
 }
+
+
+string ExcuteCARCDR(int token) {
+
+	string ultimate;
+
+	if (token == CAR) {
+		token = lex();
+		int cntl = 0; //괄호 개수 세기
+		if (lexeme[0] == '\'') { //그냥 리스트인경우
+			token = lex(); //왼쪽 괄호 처리 (
+			cntl++;
+			token = lex();
+			string v;
+			if (token == LEFT_PAREN) {
+				v.append(lexeme);
+				while (token != RIGHT_PAREN) {
+					token = lex();
+					v.append(lexeme);
+				}
+			}
+			else
+				v.append(lexeme);
+			cout << v << endl;
+
+			while (cntl != -1) { //남은 토큰들 처리
+				token = lex();
+				if (token == RIGHT_PAREN) cntl--;
+				else if (token == LEFT_PAREN) cntl++;
+			}
+
+			return v;
+		}
+		else if (lexeme[0] == '(') { //괄호인 경우 즉 재귀적인경우
+			token = lex();
+			if (token == CDR) {
+				string v = ExcuteCARCDR(token);
+				int cnt = 0;
+				int vlen = v.length();
+				for ( ; cnt < vlen; cnt++) {
+					if (v[cnt] == ' ') break;
+				}
+				if (cnt == vlen) //처번쨰 원소가 전부인 경우
+					cout << v << endl;
+				else {
+					v = v.erase(cnt + 1, vlen);
+					cout << v << endl;
+				}
+				token = lex(); //오른괄호 처리
+				token = lex();
+				return v;
+			}
+		}
+		else { //심볼인 경우
+			//예제에 없었으니까 일단 안함
+		}
+	}
+	else if (token == CDR) {
+		token = lex();
+		string s;
+		if (lexeme[0] == '\'') { //그냥 리스트인경우
+			token = lex(); //왼괄호 처리
+			token = lex(); //첫번쨰 원소 
+			token = lex(); //두번쨰 원소
+			while (token != RIGHT_PAREN) {
+				s.append(lexeme);
+				token = lex();
+				if (token == RIGHT_PAREN) { break; }
+				s.append(" ");
+			}
+			token = lex(); //나머지 오른괄호 처리
+			cout << '(' << s << ')' << endl;
+			return s;
+		}
+		else if (lexeme[0] == '(') { //왼괄호인 경우 즉 재귀적 호출인 경우
+			token = lex();
+			if (token == CDR) {
+				int cnt = 0;
+				string v = ExcuteCARCDR(token);
+				while (1) {
+					if (v[cnt] == ' ') break;
+					cnt++;
+				}
+				token = lex(); //오른괄호 처리
+				v = v.erase(0, cnt + 1);
+				//cout << v << endl;
+				return v;
+			}
+
+		}
+		else if (token == SYMBOL) { //심볼인 경우
+			map<string, SETQval>::iterator it = FindSymbol(lexeme, 2);
+			string v = it->second.val;
+			//cout << v << endl;
+			int cnt = 0;
+			while (1) {
+				if (v[cnt] == ' ') break;
+				cnt++;
+			}
+			v = v.erase(0, cnt + 1);
+			//cout << v <<cnt<< endl;
+			return v;
+		}
+		else { // 나머지
+		
+		}
+		if (ultimate == "^C[AD]R") {
+
+		}
+	}
+	else if (token == CADR) {
+		string oder(lexeme);
+		oder = oder.erase(0, 1);
+		oder = oder.erase(oder.length() - 1, oder.length());
+
+		token = lex();
+		string v;
+		if (token == SYMBOL) { //심볼일경우
+			map<string, SETQval>::iterator it = FindSymbol(lexeme, 2);
+			v = it->second.val;
+		}
+		else { //그냥 리스트일 경우
+			token = lex(); //좌괄호 처리
+			token = lex();
+			while (token != RIGHT_PAREN) {
+				v.append(lexeme);
+				token = lex();
+				if (token != RIGHT_PAREN) break;
+				v.append(" ");
+			}
+		}
+
+		for (int i = oder.length() - 1; i >= 0; i--) {
+			if (oder[i] == 'D') { //D인 경우
+				int cnt = 0;
+				while (1) {
+					if (v[cnt] == ' ') break;
+					cnt++;
+				}
+				v = v.erase(0, cnt + 1);
+			}
+			else { //C인 경우
+				int cnt = 0;
+				int vlen = v.length();
+				for (; cnt < vlen; cnt++) {
+					if (v[cnt] == ' ') break;
+				}
+				if (cnt == vlen) {
+				}//처번쨰 원소가 전부인 경우 아무것도 안함 
+				else {
+					v = v.erase(cnt + 1, vlen);
+					//cout << v << endl;
+				}
+			}
+		}
+		cout << v << endl;
+		token = lex(); //우괄호 처리
+		return v;
+	}
+	return ultimate;
+}
+
 
 
 
@@ -481,6 +665,9 @@ int lex() {
 	lexLen = 0;
 	getNonBlank();
 
+	//CADR에개한 정규표현식
+	regex card("C[AD]*R");
+
 	switch (charClass) {
 		/* Parse identifiers */
 	case LETTER:
@@ -511,11 +698,22 @@ int lex() {
 		else if (strcmp(lexeme, "LIST") == 0) {
 			nextToken = LIST;
 		}
+<<<<<<< HEAD
 		else if (strcmp(lexeme, "IF") == 0) {
 			nextToken = IF;
 		}
 		else if (strcmp(lexeme, "PRINT") == 0) {
 			nextToken = PRINT;
+=======
+		else if (strcmp(lexeme, "CAR") == 0) {
+			nextToken = CAR;
+		}
+		else if (strcmp(lexeme, "CDR") == 0) {
+			nextToken = CDR;
+		}
+		else if (regex_match(lexeme,card)) {
+			nextToken = CADR;
+>>>>>>> main
 		}
 		else {
 			nextToken = SYMBOL;
@@ -595,7 +793,6 @@ int main()
 			if (token == SYMBOL) {//symbol로 시작할 때: 존재하는 symbol의 값을 알고싶을때
 				string findsym(lexeme);
 				FindSymbol(findsym, 1);
-
 			}
 			else {
 				printf("Syntax Error\n");
@@ -609,11 +806,10 @@ int main()
 
 
 
-string FindSymbol(string findsym, int yong_do) { //사용자가 입력한 symbol의 값을 찾아주는 함수.
+map<string, SETQval>::iterator FindSymbol(string findsym, int yong_do) { //사용자가 입력한 symbol의 값을 찾아주는 함수.map<string, SETQval>::
 
 	map<string, SETQval>::iterator it;
 	
-	string returnval;
 	if (yong_do == 1) { //이 함수를 사용하는 용도가 main에서일때 
 		if (symbols.find(findsym) != symbols.end()) { //입력된 symbol이 이미 존재할때
 			it = symbols.find(findsym); //map에서 symbol을 찾아서
@@ -635,18 +831,10 @@ string FindSymbol(string findsym, int yong_do) { //사용자가 입력한 symbol
 		if (symbols.find(findsym) != symbols.end()) { //입력된 symbol이 이미 존재할때
 			it = symbols.find(findsym); //map에서 symbol을 찾아서
 
-			if (it->second.val_type == LIST) { //리스트의 경우
-				returnval.append("(");
-				returnval.append(it->second.val);
-				returnval.append(")");
-			}
-			else { //리스트 제외 나머지 경우
-				returnval.append(it->second.val);
-			}
 		}
 		else {//입력된 symbol이 존재하지 않을 때
-			returnval.append(" "); //이떄 공백을 리턴해서 외부에서 처리하도록함 
+			it = symbols.end();
 		}
 	}	
-	return returnval;
+	return it;
 }

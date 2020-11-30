@@ -6,9 +6,9 @@
 ### <기본함수> - 13개
 - ~~SETQ~~  
 - ~~LIST~~  
-- CAR
-- CDR
-(CAR와 CDR 혼합 사용 가능)
+- ~~CAR~~
+- ~~CDR~~
+~~(CAR와 CDR 혼합 사용 가능)~~
 - NTH
 - CONS
 - REVERSE
