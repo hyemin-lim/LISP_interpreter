@@ -257,10 +257,10 @@ int eval(int token) {
 		float calc_result = calc(token);
 		if (isnan(calc_result)) {
 			while (token != RIGHT_PAREN) token = lex(); //문장 오류처리
+			return -1;
 		}
 		else {
 			cout << ">" << calc_result << endl;
-			token = lex(); //닫는 괄호 처리하기
 			return -1;
 		}
 	}
@@ -388,21 +388,21 @@ int eval(int token) {
 	else if (token == APPEND) {
 		ExcuteAPPEND();
 	}
-	
+
 	else if (token == IF) { // if
-		int test_expression = 1;
+		int test_expression = -1;
 		token = lex();
 		if (token == LEFT_PAREN) {
 			token = lex();
-			test_expression = eval(token); // test expression : 참거짓을 판단해야함. 가정(~한다면)
-			if (test_expression == 1) {//test expression이 참일때
+			test_expression = eval(token); // test statement : 참거짓을 판단해야함. 가정(~한다면)
+			if (test_expression == 1) {//test statement이 참일때
 				token = lex();
 				if (token == LEFT_PAREN) {
 					token = lex();
 					eval(token);
 					token = lex();
 					if (token == RIGHT_PAREN) { //(IF (TEST) (EXTR1))형태일 때
-
+						return 1;
 					}
 					else { // (IF (TEST) (EXPR 1) (EXPR 2)) 형태일 때
 						while (token != RIGHT_PAREN) token = lex(); //참일때 실행할 명령만 실행한 후 그 뒤의 문장은 무시.
@@ -417,16 +417,16 @@ int eval(int token) {
 			}
 			else if (test_expression == 0) {//test expression 이 거짓일때
 				token = lex();
-				while (token != RIGHT_PAREN) {
+				while (token != RIGHT_PAREN) { //(EXPR1) 는 뛰어넘기
 					token = lex();
 				}
 				token = lex();
-				if (token == LEFT_PAREN) {
+				if (token == LEFT_PAREN) { //(EXPR2)가 있다면, 실행
 					token = lex();
 					eval(token);
 				}
-				else {
-					//거짓일 때 실행할 expression은 없어도 된다.
+				else { //(EXPR2)가 없다면, 아무것도 하지 않음.
+					return 0;
 				}
 			}
 			else { //참거짓을 가릴 수 없는 evaluation일 때
@@ -439,6 +439,7 @@ int eval(int token) {
 			while (token != RIGHT_PAREN) token = lex(); //문장 오류처리
 		}
 	}
+
 	else if (token == PRINT) { //출력하는 명령어
 		token = lex();
 		if (token == SYMBOL) { //심볼일 떄
@@ -485,7 +486,34 @@ int eval(int token) {
 		}
 	}
 	else if (token == COND) {
+		int test_statement = -1;
 		token = lex();
+		if (token != LEFT_PAREN) {
+			cout << "Syntax Error : COND" << endl;
+			rewind(stdin); nextChar = '\n'; charClass = 99; //문장 전체 오류처리
+			return -1;
+		}
+		while (token == LEFT_PAREN && nextChar == '(') { //((statement)(expression))일 때
+			token = IF;
+			test_statement = eval(token);
+			if (test_statement == 1) {
+				rewind(stdin); nextChar = '\n'; charClass = 99; //남은 문장은 버리기
+				return -1;
+			}
+			else{
+				token = lex();
+			}
+		}
+		if (token == LEFT_PAREN) {
+			token = lex();
+			eval(token);
+			token = lex(); //닫는 괄호 처리
+		}
+		else {
+			cout << "Syntax Error : COND" << endl;
+			rewind(stdin); nextChar = '\n'; charClass = 99; //문장 전체 오류처리
+			return -1;
+		}
 
 	}
 	else if (token == ATOM) {
@@ -500,7 +528,7 @@ int eval(int token) {
 			token = lex(); //닫는 괄호 처리
 			return 0;
 		}
-		
+
 	}
 	else if (token == NULL) {
 		token = lex();
@@ -511,12 +539,12 @@ int eval(int token) {
 			i = FindSymbol(findsym, 2);
 			s = i->second.val;
 		}
-		if (s == "nil" || token == NIL){
+		if (s == "nil" || token == NIL) {
 			cout << "> T" << endl;
 			token = lex(); // 닫는 괄호 처리
 			return 1;
 		}
-		else{
+		else {
 			cout << "> F" << endl;
 			token = lex(); //닫는 괄호 처리
 			return 0;
