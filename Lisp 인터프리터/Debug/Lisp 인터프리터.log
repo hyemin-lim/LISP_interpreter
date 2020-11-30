@@ -1,4 +1,5 @@
 ﻿  Lisp 인터프리터.cpp
+<<<<<<< HEAD
 C:\Users\임혜민\source\repos\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(79,1): warning C4005: 'NULL': 매크로 재정의
 C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.28.29333\include\vcruntime.h(233): message : 'NULL'의 이전 정의를 참조하십시오.
 C:\Users\임혜민\source\repos\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(113,27): warning C4244: '+=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
@@ -14,3 +15,21 @@ C:\Users\임혜민\source\repos\LISP_interpreter\Lisp 인터프리터\Lisp 인�
 C:\Users\임혜민\source\repos\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(363,13): warning C4018: '>=': signed 또는 unsigned가 일치하지 않습니다.
 C:\Users\임혜민\source\repos\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(696): warning C4715: 'eval': 모든 제어 경로에서 값을 반환하지는 않습니다.
   Lisp 인터프리터.vcxproj -> C:\Users\임혜민\source\repos\LISP_interpreter\Debug\Lisp 인터프리터.exe
+=======
+D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(82,1): warning C4005: 'NULL': 매크로 재정의
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.26.28801\include\vcruntime.h(233): message : 'NULL'의 이전 정의를 참조하십시오.
+D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(119,27): warning C4244: '+=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(125,29): warning C4244: '+=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(152,27): warning C4244: '*=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(158,29): warning C4244: '*=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(182,16): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(186,27): warning C4244: '/=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(192,29): warning C4244: '/=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(216,16): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(220,27): warning C4244: '-=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(226,29): warning C4244: '-=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(368,13): warning C4018: '>=': signed 또는 unsigned가 일치하지 않습니다.
+D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(906,40): warning C4553: '==': 식의 결과가 사용되지 않습니다. '='을(를) 의도했습니까?
+D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(693): warning C4715: 'eval': 모든 제어 경로에서 값을 반환하지는 않습니다.
+  Lisp 인터프리터.vcxproj -> D:\2020-2강의자료\PL\LISP_interpreter\Debug\Lisp 인터프리터.exe
+>>>>>>> main

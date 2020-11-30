@@ -14,3 +14,7 @@
 (NTH 3 '(A B)) NIL
 (NTH 3 'A) ERROR
 
+(CONS 'A '(B C D)) (A B C D)가 결과로 나옴
+(REVERSE '(A B C D)) (D C B A)가 결과로 나옴
+(APPEND '(A C) '(B D) '(E F)) 결과로 (A C B D E F)가 나옴
+//리스트 대신에 심볼을 넣어도 정상 작동

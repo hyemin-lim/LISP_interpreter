@@ -70,6 +70,9 @@ int eval(int token);
 #define CDR 42
 #define CADR 43
 #define NTH 44
+#define CONS 45
+#define REVERSE 46
+#define APPEND 47
 #define ENTER 00
 
 #define SETQ 50 //SETQ token number
@@ -100,6 +103,9 @@ map<string, SETQval> symbols;
 //함수선언
 map<string, SETQval>::iterator FindSymbol(string findsym, int yongdo);
 string ExcuteCARCDR(int token);
+string EXcuteCONS();
+string ExcuteREVERSE();
+string ExcuteAPPEND();
 
 
 float calc(int token) {//사칙연산
@@ -373,10 +379,16 @@ int eval(int token) {
 
 		token = lex(); //우괼호 처리
 	}
-
-
-
-
+	else if (token == CONS) {
+		EXcuteCONS();
+	}
+	else if (token == REVERSE) {
+		ExcuteREVERSE();
+	}
+	else if (token == APPEND) {
+		ExcuteAPPEND();
+	}
+	
 	else if (token == IF) { // if
 		int test_expression = 1;
 		token = lex();
@@ -715,8 +727,9 @@ string ExcuteCARCDR(int token) {
 					v.append(lexeme);
 				}
 			}
-			else
+			else {
 				v.append(lexeme);
+			}
 			cout << v << endl;
 
 			while (cntl != -1) { //남은 토큰들 처리
@@ -855,8 +868,101 @@ string ExcuteCARCDR(int token) {
 	}
 	return ultimate;
 }
+string EXcuteCONS() {
+	token = lex();
+	string frontlist;
+	string backlist;
+	bool symbolExist = true;
+	map<string, SETQval>::iterator it;
+	if (token == QUOTE) {
+		token = lex();
+		frontlist.append(lexeme);
+	}
+	else { // 심볼일 경우
+		it = FindSymbol(lexeme, 2);
+		if (it == symbols.end()) symbolExist = false;
+		frontlist = it->second.val;
+	}
 
+	token = lex(); //두번째 쿼트
+	token = lex(); //좌괄호
+	token = lex(); //첫뻔재 원소
+	while (token != RIGHT_PAREN) {
+		backlist.append(lexeme);
+		token = lex();
+		if (token == RIGHT_PAREN) break;
+		backlist.append(" ");
+	}
+	token = lex(); //우괄호 처리
+	if (symbolExist == false) {
+		cout << "This Symbol dose not exist" << endl;
+		return " ";
+	}
+	cout << "(" << frontlist << " " << backlist << ")" << endl;
+	return frontlist + " " + backlist;
+}
+string ExcuteREVERSE() {
+	token = lex();
+	string list;
+	bool symbolExist = true;
+	map <string, SETQval>::iterator it;
+	if (token == QUOTE) { //그냥 리스트인경우
+		token = lex();//좌괄호 처리
+		token = lex(); //첫뻔재 원소
+		while (token != RIGHT_PAREN) {
+			list.append(lexeme);
+			token = lex();
+			if (token == RIGHT_PAREN) break;
+			list.append(" ");
+		}
+	}
+	else { //심볼인 경우
+		it = FindSymbol(lexeme, 2);
+		if (it == symbols.end()) symbolExist == false;
+		list = it->second.val;
+	}
+	lex(); //우괄호 처리
+	if (symbolExist == false) {
+		cout << "This Symbol dose not exist" << endl;
+		return " ";
+	}
+	reverse(list.begin(), list.end());
+	cout << '(' << list << ")" << endl;
+	return list;
+}
+string ExcuteAPPEND() {
+	string list;
+	map<string, SETQval>::iterator it;
+	bool symbolExist = true;
+	token = lex(); //이게 쿼트이거나 심볼임
+	while (token != RIGHT_PAREN) {
 
+		if (token == QUOTE) { //쿼트인 경우
+			token = lex();//좌괄호 처리
+			token = lex(); //첫뻔재 원소
+			while (token != RIGHT_PAREN) {
+				list.append(lexeme);
+				token = lex();
+				if (token == RIGHT_PAREN) break;
+				list.append(" ");
+			}
+		}
+		else { //심볼인경우
+			it = FindSymbol(lexeme, 2);
+			if (it == symbols.end()) symbolExist = false;
+			list.append(it->second.val);
+		}
+		token = lex();
+		if (token == RIGHT_PAREN) break;
+		list.append(" ");
+	}
+	if (symbolExist == false) {
+		cout << "This Symbol dose not exist" << endl;
+		return " ";
+	}
+	cout << '(' << list << ")" << endl;
+	return list;
+}
 
 
 /******************************************
@@ -1015,7 +1121,16 @@ int lex() {
 		else if (stricmp(lexeme, "NTH") == 0) {
 			nextToken = NTH;
 		}
-		else if (stricmp(lexeme, "ATOM") == 0) {
+		else if (strcmp(lexeme, "CONS") == 0) {
+			nextToken = CONS;
+		}
+		else if (strcmp(lexeme, "REVERSE") == 0) {
+			nextToken = REVERSE;
+		}
+		else if (strcmp(lexeme, "APPEND") == 0) {
+			nextToken = APPEND;
+		}
+		else if (strcmp(lexeme, "ATOM") == 0) {
 			nextToken = ATOM;
 		}
 		else if (stricmp(lexeme, "NULL") == 0) {
