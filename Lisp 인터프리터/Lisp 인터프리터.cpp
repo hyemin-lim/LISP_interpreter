@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string>
 #include <iostream>
+#include <algorithm>
 #include <map>
 #include <regex>
 #pragma warning(disable: 4996)
@@ -72,6 +73,18 @@ int eval(int token);
 #define ENTER 00
 
 #define SETQ 50 //SETQ token number
+
+// predicate function token number
+#define ATOM 80
+#define NULL 81
+#define NUMBERP 82
+#define ZEROP 83
+#define MINUSP 84
+#define EQUAL 85
+#define STRINGP 88
+#define NIL 89
+#define GOE_OP 32
+#define QUOTE 33
 
 //multiple variable을 넣을 수 있는 map 구현
 //string 과 map 을 사용하였고 symbol과 그 symbol에 저장될 SETQval로 구성됨.
@@ -261,9 +274,9 @@ int eval(int token) {
 				list.append(lexeme);
 				token = lex();
 				while (token != RIGHT_PAREN) {
-						list.append(" ");
-						list.append(lexeme);
-						token = lex();
+					list.append(" ");
+					list.append(lexeme);
+					token = lex();
 				}
 				SETQval newval;
 				newval.val = list;
@@ -281,7 +294,7 @@ int eval(int token) {
 				token = lex(); // 닫는 괄호 처리하기
 				cout << ">" << v << endl;
 			}
-			
+
 		}
 	}
 	else if (token == LIST) { //LIST
@@ -432,6 +445,230 @@ int eval(int token) {
 			rewind(stdin);
 		}
 	}
+	else if (token == ATOM) {
+		token = lex();
+		if (token == SYMBOL)
+			cout << "> T" << endl;
+		else
+			cout << "> F" << endl;
+	}
+	else if (token == NULL) {
+		token = lex();
+		string s;
+		map<string, SETQval>::iterator i;
+		if (token == SYMBOL) {
+			string findsym(lexeme);
+			i = FindSymbol(findsym, 2);
+			s = i->second.val;
+		}
+		if (s == "nil" || token == NIL)
+			cout << "> T" << endl;
+		else
+			cout << "> F" << endl;
+	}
+	else if (token == NUMBERP) {
+		token = lex();
+		string s;
+		map<string, SETQval>::iterator i;
+		if (token == SYMBOL) {
+			string findsym(lexeme);
+			i = FindSymbol(findsym, 2);
+			s = i->second.val;
+		}
+		if (atoi(s.c_str()) != 0 || s.compare("0") == 0 || token == INT_LIT)		// 숫자
+			cout << "> T" << endl;
+		else
+			cout << "> F" << endl;
+	}
+	else if (token == ZEROP) {
+		token = lex();
+		string s;
+		map<string, SETQval>::iterator i;
+		if (token == SYMBOL) {
+			string findsym(lexeme);
+			i = FindSymbol(findsym, 2);
+			s = i->second.val;
+		}
+		if (atoi(s.c_str()) != 0 || s.compare("0") == 0 || token == INT_LIT) {
+			if (s.compare("0") == 0 || string(lexeme) == "0")	// 숫자이고, 0인것
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+		else
+			cout << "Error! " << lexeme << " is not DIGIT" << endl;
+
+	}
+	else if (token == MINUSP) {
+		token = lex();
+		string s;
+		map<string, SETQval>::iterator i;
+		if (token == SYMBOL) {
+			string findsym(lexeme);
+			i = FindSymbol(findsym, 2);
+			s = i->second.val;
+		}
+		if (atoi(s.c_str()) != 0 || s.compare("0") == 0 || token == INT_LIT) {
+
+			if (atoi(s.c_str()) < 0 || atoi(lexeme) < 0)
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+		else
+			cout << "Error! " << lexeme << " is not DIGIT" << endl;
+	}
+	else if (token == EQUAL) {
+		string p1, p2;
+		map<string, SETQval>::iterator i;
+		string s1, s2;
+		int t1, t2;
+		bool mark = false;
+
+		token = lex();
+		p1 = lexeme;
+		t1 = token;
+		if (token == QUOTE) {		// 리스트가 비교인자로 들어오는 경우, '(리스트) 를 인식
+			token = lex();
+			p1 += lexeme;
+			if (token == LEFT_PAREN) {			// 첫번째 비교인자가 '0 같은 경우 
+				while (token != RIGHT_PAREN) {
+					token = lex();
+					p1 += lexeme;
+				}
+			}
+		}
+		if (t1 == SYMBOL) {
+			string findsym(lexeme);
+			i = FindSymbol(findsym, 2);
+			s1 = i->second.val;
+		}
+
+		token = lex();
+		p2 = lexeme;
+		t2 = token;
+		if (token == QUOTE) {		// 리스트가 비교인자로 들어오는 경우, '(리스트) 를 인식
+			token = lex();
+			p2 += lexeme;
+			if (token == LEFT_PAREN) {			// 첫번째 비교인자가 '0 같은 경우 
+				while (token != RIGHT_PAREN) {
+					token = lex();
+					p2 += lexeme;
+				}
+			}
+		}
+		if (t2 == SYMBOL) {
+			string findsym(lexeme);
+			i = FindSymbol(findsym, 2);
+			s2 = i->second.val;
+		}
+
+		p1 = p1.substr(0, p1.length() - 1);
+		p1 += ")";
+
+		// EQUAL 함수로 들어올 수 있는 파라미터의 경우의 수.
+		if (t1 == INT_LIT && t2 == INT_LIT) {		// DIGIT == DIGIT
+			if ((p1.compare(p2) == 0))
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+		else if (t1 == SYMBOL && t2 == SYMBOL) {		// SYMBOL == SYMBOL
+			if ((s1.compare(s2) == 0) && s1 != " " && s2 != " ")
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+		else if (t1 == INT_LIT && t2 == SYMBOL) {		// DIGIT == SYMBOL	
+			if (p1.compare(s2) == 0)
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+		else if (t1 == SYMBOL && t2 == INT_LIT) {		// SYMBOL == DIGIT
+			if (s1.compare(p2) == 0)
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+		else if (t1 == QUOTE && t2 == QUOTE){	// LIST == LIST	    --->    (EQUAL '(1 2) '(1 3)) 같은 경우
+			p2 = p2.substr(1, p2.length() - 1);
+			p1 = p1.substr(1, p1.length() - 1);
+			if ((p1.compare(p2) == 0))
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+		else if (t1 == INT_LIT && t2 == QUOTE) {		// DIGIT == LIST 
+			p1 += ")";
+			p2 = p2.substr(1, p2.length() - 1);
+			if (p1.compare(p2) == 0)
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+		else if (t1 == QUOTE && t2 == INT_LIT) {		// LIST == DIGIT
+			p1 = p1.substr(1, p1.length()-1);
+			if (p1.compare(p2) == 0)
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+		else if (t1 == SYMBOL && t2 == QUOTE ) {		// SYMBOL == LIST
+			p2 = p2.substr(1, p2.length() - 1);
+			if (s1.compare(p2) == 0)
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+		else if (t1 == QUOTE && t2 == SYMBOL) {		// LIST == SYMBOL
+			p1 = p1.substr(1, p1.length() - 1);
+			if (p1.compare(s2) == 0)
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}										
+														
+		//cout << "p1 ----> " << p1 << endl;
+		//cout << "p2 ----> " << p2 << endl;
+		//cout << "s1 ----> " << s1 << endl;
+		//cout << "s2 ----> " << s2 << endl;
+		//cout << "t1 ----> " << t1 << endl;
+		//cout << "t2 ----> " << t2 << endl;
+
+	}
+	else if (token == LT_OP) {
+
+		// DIGIT < DIGIT
+		// DIGIT < SYMBOL
+		// SYMBOL < DIGIT
+		// SYMBOL < SYMBOL
+
+
+		//if ()
+		//	cout << "> T" << endl;
+		//else
+		//	cout << "> F" << endl;
+	}
+	else if (token == GOE_OP) {
+
+		// DIGIT <= DIGIT
+		// DIGIT <= SYMBOL
+		// SYMBOL <= DIGIT
+		// SYMBOL <= SYMBOL
+
+		//if ()
+		//	cout << "> T" << endl;
+		//else
+		//	cout << "> F" << endl;
+	}
+	else if (token == STRINGP) {
+		//if ()
+		//	cout << "> T" << endl;
+		//else
+		//	cout << "> F" << endl;
+	}
+
 	else { //여기에 계속 다른 연산 추가
 
 	}
@@ -646,6 +883,14 @@ int lookup(char ch) {
 	case '.':
 		nextToken = POINT;
 		break;
+	case '>=':
+		addChar();
+		nextToken = GOE_OP;
+		break;
+	case '\'':
+		addChar();
+		nextToken = QUOTE;
+		break;
 	default:
 		nextToken = EOF;
 		break;
@@ -752,6 +997,39 @@ int lex() {
 		else if (strcmp(lexeme, "NTH") == 0) {
 			nextToken = NTH;
 		}
+		else if (strcmp(lexeme, "ATOM") == 0) {
+			nextToken = ATOM;
+		}
+		else if (strcmp(lexeme, "NULL") == 0) {
+			nextToken = NULL;
+		}
+		else if (strcmp(lexeme, "nil") == 0) {
+			nextToken = NIL;
+		}
+		else if (strcmp(lexeme, "NUMBERP") == 0) {
+			nextToken = NUMBERP;
+		}
+		else if (strcmp(lexeme, "ZEROP") == 0) {
+			nextToken = ZEROP;
+		}
+		else if (strcmp(lexeme, "MINUSP") == 0) {
+			nextToken = MINUSP;
+		}
+		else if (strcmp(lexeme, "EQUAL") == 0) {
+			nextToken = EQUAL;
+		}
+		else if (strcmp(lexeme, "<") == 0) {
+			nextToken = LT_OP;
+		}
+		else if (strcmp(lexeme, ">=") == 0) {
+			nextToken = GOE_OP;
+		}
+		else if (strcmp(lexeme, "STRINGP") == 0) {
+			nextToken = STRINGP;
+		}
+		else if (strcmp(lexeme, "'") == 0) {
+			nextToken = QUOTE;
+		}
 		else {
 			nextToken = SYMBOL;
 		}
@@ -803,12 +1081,12 @@ int lex() {
 		lexeme[3] = 0;
 		break;
 	} /* End of switch */
-	/*if ((out_fp = fopen("code.out", "a")) == NULL) {
-		printf("ERROR - cannot open front.in \n");
-	}
-	else {
-		//printf("Next token is: %d, Next lexeme is %s\n", nextToken, lexeme);
-	}*/
+	//if ((out_fp = fopen("code.out", "a")) == NULL) {
+	//	printf("ERROR - cannot open front.in \n");
+	//}
+	//else {
+	//	printf("Next token is: %d, Next lexeme is %s\n", nextToken, lexeme);
+	//}
 	return nextToken;
 } /* End of function lex */
 
