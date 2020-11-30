@@ -10,9 +10,9 @@
 - ~~CDR~~
 ~~(CAR와 CDR 혼합 사용 가능)~~
 - ~~NTH~~
-- CONS
-- REVERSE
-- APPEND
+- ~~CONS~~
+- ~~REVERSE~~
+- ~~APPEND~~
 - LENGTH
 - MEMBER
 - ASSOC
