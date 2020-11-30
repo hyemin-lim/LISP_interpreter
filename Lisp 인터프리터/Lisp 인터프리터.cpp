@@ -155,7 +155,7 @@ float calc(int token) {//사칙연산
 			else if (token == SYMBOL) { //symbol일때: 변수도 연산 가능
 				if (symbols.find(lexeme) != symbols.end()) {//이미 존재하는 symbol일 때
 					if (symbols.find(lexeme)->second.val_type == INT_LIT) { //그 symbol의 값이 숫자일때
-						result *= atof(lexeme);
+						result *= atof(symbols.find(lexeme)->second.val.c_str());
 						token = lex();
 					}
 					else {
@@ -189,7 +189,7 @@ float calc(int token) {//사칙연산
 			else if (token == SYMBOL) { //symbol일때: 변수도 연산 가능
 				if (symbols.find(lexeme) != symbols.end()) {//이미 존재하는 symbol일 때
 					if (symbols.find(lexeme)->second.val_type == INT_LIT) { //그 symbol의 값이 숫자일때
-						result /= atof(lexeme);
+						result /= atof(symbols.find(lexeme)->second.val.c_str());
 						token = lex();
 					}
 					else {
@@ -223,7 +223,7 @@ float calc(int token) {//사칙연산
 			else if (token == SYMBOL) { //symbol일때: 변수도 연산 가능
 				if (symbols.find(lexeme) != symbols.end()) {//이미 존재하는 symbol일 때
 					if (symbols.find(lexeme)->second.val_type == INT_LIT) { //그 symbol의 값이 숫자일때
-						result -= atof(lexeme);
+						result -= atof(symbols.find(lexeme)->second.val.c_str());
 						token = lex();
 					}
 					else {
@@ -256,7 +256,7 @@ int eval(int token) {
 	if (token == ADD_OP || token == SUB_OP || token == MULT_OP || token == DIV_OP) { //사칙연산
 		float calc_result = calc(token);
 		if (isnan(calc_result)) {
-			rewind(stdin);
+			while (token != RIGHT_PAREN) token = lex(); //문장 오류처리
 		}
 		else {
 			cout << ">" << calc_result << endl;
@@ -400,10 +400,18 @@ int eval(int token) {
 				if (token == LEFT_PAREN) {
 					token = lex();
 					eval(token);
+					token = lex();
+					if (token == RIGHT_PAREN) { //(IF (TEST) (EXTR1))형태일 때
+
+					}
+					else { // (IF (TEST) (EXPR 1) (EXPR 2)) 형태일 때
+						while (token != RIGHT_PAREN) token = lex(); //참일때 실행할 명령만 실행한 후 그 뒤의 문장은 무시.
+						token = lex(); //전체 문장 닫는 괄호 한번 더 처리
+					}
 				}
 				else {
 					cout << "Syntax Error : too few elements in IF statement" << endl;
-					rewind(stdin);
+					while (token != RIGHT_PAREN) token = lex(); //문장 오류처리
 					return -1;
 				}
 			}
@@ -423,39 +431,56 @@ int eval(int token) {
 			}
 			else { //참거짓을 가릴 수 없는 evaluation일 때
 				cout << "Error : test expression is not correct" << endl;
-				rewind(stdin);
+				while (token != RIGHT_PAREN) token = lex(); //문장 오류처리
 			}
 		}
 		else {
 			cout << "Syntax Error" << endl;
-			rewind(stdin);
+			while (token != RIGHT_PAREN) token = lex(); //문장 오류처리
 		}
 	}
-	else if (token == PRINT) {
+	else if (token == PRINT) { //출력하는 명령어
 		token = lex();
-		if (token == SYMBOL) {
+		if (token == SYMBOL) { //심볼일 떄
 			string l(lexeme);
 			map<string, SETQval>::iterator sym_val = FindSymbol(l, 2);
 			if (sym_val == symbols.end()) {
 				cout << "Error : variable " << l << "is unbound" << endl;
-				rewind(stdin);
+				while (token != RIGHT_PAREN) token = lex(); //문장 오류처리
 				return -1;
 			}
 			else {
 				cout << ">" << sym_val->second.val << endl;
+				token = lex(); //닫는 괄호 처리
 			}
 		}
-		else if (token == INT_LIT) {
+		else if (token == INT_LIT) { //숫자일 때
 			cout << ">" << atof(lexeme) << endl;
+			token = lex(); //닫는 괄호 처리
 		}
-		/*else if () {//리스트 프린트?
-			//리스트를 출력해야 하면 '를 토큰으로 만들어야 인식이 가능할듯...??
-			//'(x y z)같은 형태의 리스트와
-			//(LIST X Y Z) 같은 형태의 리스트를 모두 인식 후 출력할 수 있게 구현.
-		}*/
+		else if (token == LEFT_PAREN) {
+			token = lex();
+			if (token == LIST) { //리스트일 때
+				eval(token);
+				token = lex(); //닫는 괄호 처리
+			}
+			else { //다른 명령일 때
+				cout << "Syntax Error : cannot print" << endl;
+				while (token != RIGHT_PAREN) token = lex(); //문장 오류처리
+				token = lex(); //닫는괄호처리 한번 더
+				return -1;
+			}
+		}
+		else if (token == QUOTE) { // '로 시작하는 리스트일 때
+			token = lex(); // ( 괄호
+			token = LIST;
+			eval(token);
+			token = lex(); // 닫는 괄호 처리
+		}
 		else {
 			cout << "Syntax Error : cannot print" << endl;
-			rewind(stdin);
+			while (token != RIGHT_PAREN) token = lex(); //문장 오류처리
+			token = lex(); //닫는 괄호 처리
 			return -1;
 		}
 	}
@@ -507,9 +532,17 @@ int eval(int token) {
 			s = i->second.val;
 		}
 		if (atoi(s.c_str()) != 0 || s.compare("0") == 0 || token == INT_LIT)		// 숫자
+		{
 			cout << "> T" << endl;
+			token = lex(); //닫는 괄호 처리
+			return 1;
+		}
 		else
+		{
 			cout << "> F" << endl;
+			token = lex(); //닫는 괄호 처리
+			return 0;
+		}
 	}
 	else if (token == ZEROP) {
 		token = lex();
@@ -522,9 +555,17 @@ int eval(int token) {
 		}
 		if (atoi(s.c_str()) != 0 || s.compare("0") == 0 || token == INT_LIT) {
 			if (s.compare("0") == 0 || string(lexeme) == "0")	// 숫자이고, 0인것
+			{
 				cout << "> T" << endl;
+				token = lex(); //닫는 괄호 처리
+				return 1;
+			}
 			else
+			{
 				cout << "> F" << endl;
+				token = lex(); //닫는 괄호 처리
+				return 0;
+			}
 		}
 		else
 			cout << "Error! " << lexeme << " is not DIGIT" << endl;
@@ -542,9 +583,17 @@ int eval(int token) {
 		if (atoi(s.c_str()) != 0 || s.compare("0") == 0 || token == INT_LIT) {
 
 			if (atoi(s.c_str()) < 0 || atoi(lexeme) < 0)
+			{
 				cout << "> T" << endl;
+				token = lex(); //닫는 괄호 처리
+				return 1;
+			}
 			else
+			{
 				cout << "> F" << endl;
+				token = lex(); //닫는 괄호 처리
+				return 0;
+			}
 		}
 		else
 			cout << "Error! " << lexeme << " is not DIGIT" << endl;
@@ -599,67 +648,139 @@ int eval(int token) {
 		// EQUAL 함수로 들어올 수 있는 파라미터의 경우의 수.
 		if (t1 == INT_LIT && t2 == INT_LIT) {		// DIGIT == DIGIT
 			if ((p1.compare(p2) == 0))
+			{
 				cout << "> T" << endl;
+				token = lex(); //닫는 괄호 처리
+				return 1;
+			}
 			else
+			{
 				cout << "> F" << endl;
+				token = lex(); //닫는 괄호 처리
+				return 0;
+			}
 		}
 		else if (t1 == SYMBOL && t2 == SYMBOL) {		// SYMBOL == SYMBOL
 			if ((s1.compare(s2) == 0) && s1 != " " && s2 != " ")
+			{
 				cout << "> T" << endl;
+				token = lex(); //닫는 괄호 처리
+				return 1;
+			}
 			else
+			{
 				cout << "> F" << endl;
+				token = lex(); //닫는 괄호 처리
+				return 0;
+			}
 		}
 		else if (t1 == INT_LIT && t2 == SYMBOL) {		// DIGIT == SYMBOL	
 			if (p1.compare(s2) == 0)
+			{
 				cout << "> T" << endl;
+				token = lex(); //닫는 괄호 처리
+				return 1;
+			}
 			else
+			{
 				cout << "> F" << endl;
+				token = lex(); //닫는 괄호 처리
+				return 0;
+			}
 		}
 		else if (t1 == SYMBOL && t2 == INT_LIT) {		// SYMBOL == DIGIT
 			if (s1.compare(p2) == 0)
+			{
 				cout << "> T" << endl;
+				token = lex(); //닫는 괄호 처리
+				return 1;
+			}
 			else
+			{
 				cout << "> F" << endl;
+				token = lex(); //닫는 괄호 처리
+				return 0;
+			}
 		}
 		else if (t1 == QUOTE && t2 == QUOTE) {	// LIST == LIST	    --->    (EQUAL '(1 2) '(1 3)) 같은 경우
 			p2 = p2.substr(1, p2.length() - 1);
 			p1 = p1.substr(1, p1.length() - 1);
 			if ((p1.compare(p2) == 0))
+			{
 				cout << "> T" << endl;
+				token = lex(); //닫는 괄호 처리
+				return 1;
+			}
 			else
+			{
 				cout << "> F" << endl;
+				token = lex(); //닫는 괄호 처리
+				return 0;
+			}
 		}
 		else if (t1 == INT_LIT && t2 == QUOTE) {		// DIGIT == LIST -->  (EQUAL 0 '0)
 			p2 = p2.substr(2, p2.length() - 1);
 			if (p1.compare(p2) == 0)
+			{
 				cout << "> T" << endl;
+				token = lex(); //닫는 괄호 처리
+				return 1;
+			}
 			else
+			{
 				cout << "> F" << endl;
+				token = lex(); //닫는 괄호 처리
+				return 0;
+			}
 		}
 		else if (t1 == QUOTE && t2 == INT_LIT) {		// LIST == DIGIT -->  (EQUAL '0 0)
 			p1 = p1.substr(2, p1.length() - 1);
 			if (p1.compare(p2) == 0)
+			{
 				cout << "> T" << endl;
+				token = lex(); //닫는 괄호 처리
+				return 1;
+			}
 			else
+			{
 				cout << "> F" << endl;
+				token = lex(); //닫는 괄호 처리
+				return 0;
+			}
 		}
 		else if (t1 == SYMBOL && t2 == QUOTE) {		// SYMBOL == LIST
 			s1.insert(0, "'( ");
 			s1.append(" )");
 			p2 = p2.substr(1, p2.length() - 1);
 			if (s1.compare(p2) == 0)
+			{
 				cout << "> T" << endl;
+				token = lex(); //닫는 괄호 처리
+				return 1;
+			}
 			else
+			{
 				cout << "> F" << endl;
+				token = lex(); //닫는 괄호 처리
+				return 0;
+			}
 		}
 		else if (t1 == QUOTE && t2 == SYMBOL) {		// LIST == SYMBOL
 			s2.insert(0, "'( ");
 			s2.append(" )");
 			p1 = p1.substr(1, p1.length() - 1);
 			if (p1.compare(s2) == 0)
+			{
 				cout << "> T" << endl;
+				token = lex(); //닫는 괄호 처리
+				return 1;
+			}
 			else
+			{
 				cout << "> F" << endl;
+				token = lex(); //닫는 괄호 처리
+				return 0;
+			}
 		}
 
 		//cout << "p1 ----> " << p1 << endl;
