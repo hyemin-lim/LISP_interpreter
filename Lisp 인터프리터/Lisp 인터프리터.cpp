@@ -433,7 +433,6 @@ string ExcuteCARCDR(int token) {
 		}
 	}
 	else if (token == CADR) {
-		cout << lexeme << endl;
 		string oder(lexeme);
 		oder = oder.erase(0, 1);
 		oder = oder.erase(oder.length() - 1, oder.length());
@@ -457,18 +456,31 @@ string ExcuteCARCDR(int token) {
 
 		for (int i = oder.length() - 1; i >= 0; i--) {
 			if (oder[i] == 'D') { //D인 경우
-				v = ExcuteCARCDR(CDR); //이거 아닌데 다른 방법 필요
+				int cnt = 0;
+				while (1) {
+					if (v[cnt] == ' ') break;
+					cnt++;
+				}
+				v = v.erase(0, cnt + 1);
 			}
 			else { //C인 경우
-
+				int cnt = 0;
+				int vlen = v.length();
+				for (; cnt < vlen; cnt++) {
+					if (v[cnt] == ' ') break;
+				}
+				if (cnt == vlen) {
+				}//처번쨰 원소가 전부인 경우 아무것도 안함 
+				else {
+					v = v.erase(cnt + 1, vlen);
+					//cout << v << endl;
+				}
 			}
 		}
-
-
-
+		cout << v << endl;
 		token = lex(); //우괄호 처리
+		return v;
 	}
-
 	return ultimate;
 }
 
