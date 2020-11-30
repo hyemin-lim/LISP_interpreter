@@ -296,24 +296,12 @@ int eval(int token) {
 			}
 			else {//심볼인 경우
 				string symbol(lexeme);
-<<<<<<< HEAD
-				string v = FindSymbol(symbol, 2);
-				if (v == " ") { // 존재하지 않는 symbol일 때
-					cout << "Error : variable " << symbol << "is unbound" << endl;
-					rewind(stdin);
-					return -1;
-				}
-				else {
-					list.append(v);
-				}
-=======
 				map<string, SETQval>::iterator it = FindSymbol(symbol, 2);
 				if (it == symbols.end()) {
 					cout << "No" << lexeme << "Symbol exist" << endl;
 					while (token != RIGHT_PAREN) token = lex(); //나머지 토큰들 다 처리하기
 				}
 				list.append(it->second.val);
->>>>>>> main
 			}
 			token = lex();
 			if (token != RIGHT_PAREN)
@@ -369,22 +357,24 @@ int eval(int token) {
 			token = lex();
 			if (token == SYMBOL) {
 				string l(lexeme);
-				string sym_val = FindSymbol(l, 2);
-				if (sym_val == " ") {
+				map<string, SETQval>::iterator sym_val = FindSymbol(l, 2);
+				if (sym_val == symbols.end()) {
 					cout << "Error : variable " << l << "is unbound" << endl;
 					rewind(stdin);
 					return -1;
 				}
 				else {
-					cout << ">" << sym_val << endl;
+					cout << ">" << sym_val->second.val << endl;
 				}
 			}
 			else if (token == INT_LIT) {
 				cout << ">" << atof(lexeme) << endl;
 			}
-			else if () {//리스트 프린트?
-
-			}
+			/*else if () {//리스트 프린트?
+				//리스트를 출력해야 하면 '를 토큰으로 만들어야 인식이 가능할듯...??
+				//'(x y z)같은 형태의 리스트와
+				//(LIST X Y Z) 같은 형태의 리스트를 모두 인식 후 출력할 수 있게 구현.
+			}*/
 			else {
 				cout << "Syntax Error : cannot print" << endl;
 				rewind(stdin);
@@ -698,13 +688,12 @@ int lex() {
 		else if (strcmp(lexeme, "LIST") == 0) {
 			nextToken = LIST;
 		}
-<<<<<<< HEAD
 		else if (strcmp(lexeme, "IF") == 0) {
 			nextToken = IF;
 		}
 		else if (strcmp(lexeme, "PRINT") == 0) {
 			nextToken = PRINT;
-=======
+		}
 		else if (strcmp(lexeme, "CAR") == 0) {
 			nextToken = CAR;
 		}
@@ -713,7 +702,6 @@ int lex() {
 		}
 		else if (regex_match(lexeme,card)) {
 			nextToken = CADR;
->>>>>>> main
 		}
 		else {
 			nextToken = SYMBOL;
