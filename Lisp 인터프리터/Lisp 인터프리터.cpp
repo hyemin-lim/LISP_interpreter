@@ -89,6 +89,9 @@ int eval(int token);
 #define GOE_OP 32
 #define QUOTE 33
 #define LOE_OP 34
+#define DOUBLE_QUOTE 35
+
+#define STRING 50
 
 //multiple variable을 넣을 수 있는 map 구현
 //string 과 map 을 사용하였고 symbol과 그 symbol에 저장될 SETQval로 구성됨.
@@ -292,6 +295,23 @@ int eval(int token) {
 				symbols.insert(make_pair(s, newval)); //값 저장하기
 				token = lex(); //닫는 괄호 처리하기
 				cout << ">" << "(" << list << ")" << endl;
+
+			}
+			else if (v[0] == '\"') { //string을 setq할때 
+				string str;
+				token = lex(); //원소 찾기
+				str.append(lexeme);
+				token = lex();
+				while (token != DOUBLE_QUOTE) {
+					str.append(" ");
+					str.append(lexeme);
+					token = lex();
+				}
+				SETQval newval;
+				newval.val = str;
+				newval.val_type = STRING;
+				symbols.insert(make_pair(s, newval)); //값 저장하기
+				cout << ">" << "\"" << str << "\"" << endl;
 
 			}
 			else { //리스트 아닌걸 SETQ 할떄
@@ -936,12 +956,47 @@ int eval(int token) {
 
 	}
 	else if (token == STRINGP) {
-		//if ()
-		//	cout << "> T" << endl;
-		//else
-		//	cout << "> F" << endl;
-	}
+		string s;
+		map<string, SETQval>::iterator i;
 
+		token = lex();
+		if (token == DOUBLE_QUOTE) {		// String 직접 들어오는 경우
+			token = lex();
+			token = lex();
+			if (token != RIGHT_PAREN) {
+				while (token != DOUBLE_QUOTE) {
+					token = lex();
+				}
+				cout << "> T" << endl;
+			}
+			else {
+				cout << "> F" << endl;
+
+			}
+		}
+		else {	// String이 symbol로 들어오는 경우
+			if (token == SYMBOL) {
+				s += lexeme;
+				token = lex();
+				if (token == RIGHT_PAREN) {
+					string findsym(s);
+					i = FindSymbol(findsym, 2);
+
+					if (i->second.val_type == STRING) {
+						cout << "> T" << endl;
+
+					}
+					else
+						cout << "> F" << endl;
+				}
+				else
+					cout << "> F" << endl;
+			}
+			else
+				cout << "> F" << endl;
+		}
+
+	}
 	else { //여기에 계속 다른 연산 추가
 
 	}
@@ -1258,6 +1313,10 @@ int lookup(char ch) {
 		addChar();
 		nextToken = QUOTE;
 		break;
+	case '\"':
+		addChar();
+		nextToken = DOUBLE_QUOTE;
+		break;
 	default:
 		nextToken = EOF;
 		break;
@@ -1396,6 +1455,9 @@ int lex() {
 		}
 		else if (strcmp(lexeme, "'") == 0) {
 			nextToken = QUOTE;
+		}
+		else if (strcmp(lexeme, "\"") == 0) {
+			nextToken = DOUBLE_QUOTE;
 		}
 		else {
 			nextToken = SYMBOL;
