@@ -89,6 +89,9 @@ int eval(int token);
 #define GOE_OP 32
 #define QUOTE 33
 #define LOE_OP 34
+#define DOUBLE_QUOTE 35
+
+#define STRING 50
 
 //multiple variable을 넣을 수 있는 map 구현
 //string 과 map 을 사용하였고 symbol과 그 symbol에 저장될 SETQval로 구성됨.
@@ -292,6 +295,23 @@ int eval(int token) {
 				symbols.insert(make_pair(s, newval)); //값 저장하기
 				token = lex(); //닫는 괄호 처리하기
 				cout << ">" << "(" << list << ")" << endl;
+
+			}
+			else if (v[0] == '\"') { //string을 setq할때 
+				string str;
+				token = lex(); //원소 찾기
+				str.append(lexeme);
+				token = lex();
+				while (token != DOUBLE_QUOTE) {
+					str.append(" ");
+					str.append(lexeme);
+					token = lex();
+				}
+				SETQval newval;
+				newval.val = str;
+				newval.val_type = STRING;
+				symbols.insert(make_pair(s, newval)); //값 저장하기
+				cout << ">" << "\"" << str << "\"" << endl;
 
 			}
 			else { //리스트 아닌걸 SETQ 할떄
@@ -631,7 +651,6 @@ int eval(int token) {
 		map<string, SETQval>::iterator i;
 		string s1, s2;
 		int t1, t2;
-		bool mark = false;
 
 		token = lex();
 		p1 = lexeme;
@@ -819,38 +838,165 @@ int eval(int token) {
 		//cout << "t2 ----> " << t2 << endl;
 
 	}
-	else if (token == LT_OP) {
+	else if (token == LT_OP) {		// --> real number만 가능.
+		string p1, p2;
+		map<string, SETQval>::iterator i;
+		string s1, s2;
+		int t1, t2;
 
-		// DIGIT < DIGIT
-		// DIGIT < SYMBOL
-		// SYMBOL < DIGIT
-		// SYMBOL < SYMBOL
+		token = lex();
+		p1 = lexeme;
+		t1 = token;
+		if (t1 == SYMBOL) {
+			string findsym(lexeme);
+			i = FindSymbol(findsym, 2);
+			s1 = i->second.val;
+		}
 
+		token = lex();
+		p2 = lexeme;
+		t2 = token;
+		if (t2 == SYMBOL) {
+			string findsym(lexeme);
+			i = FindSymbol(findsym, 2);
+			s2 = i->second.val;
+		}
 
-		//if ()
-		//	cout << "> T" << endl;
-		//else
-		//	cout << "> F" << endl;
+		// 계산
+		if (t1 == INT_LIT && t2 == INT_LIT) {		// DIGIT < DIGIT
+			if (atoi(p1.c_str()) < atoi(p2.c_str()))
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+		else if (t1 == INT_LIT && t2 == SYMBOL) {		// DIGIT < SYMBOL
+			if (atoi(p1.c_str()) < atoi(s2.c_str()))
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+		else if (t1 == SYMBOL && t2 == INT_LIT) {		// SYMBOL < DIGIT
+			if (atoi(s1.c_str()) < atoi(p2.c_str()))
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+		else if (t1 == SYMBOL && t2 == SYMBOL) {			// SYMBOL < SYMBOL
+			if (atoi(s1.c_str()) < atoi(s2.c_str()))
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+
+		//cout << "p1 ----> " << p1 << endl;
+		//cout << "p2 ----> " << p2 << endl;
+		//cout << "s1 ----> " << s1 << endl;
+		//cout << "s2 ----> " << s2 << endl;
+		//cout << "t1 ----> " << t1 << endl;
+		//cout << "t2 ----> " << t2 << endl;
+
 	}
 	else if (token == GOE_OP) {
 
-		// DIGIT <= DIGIT
-		// DIGIT <= SYMBOL
-		// SYMBOL <= DIGIT
-		// SYMBOL <= SYMBOL
+		string p1, p2;
+		map<string, SETQval>::iterator i;
+		string s1, s2;
+		int t1, t2;
 
-		//if ()
-		//	cout << "> T" << endl;
-		//else
-		//	cout << "> F" << endl;
+		token = lex();
+		p1 = lexeme;
+		t1 = token;
+		if (t1 == SYMBOL) {
+			string findsym(lexeme);
+			i = FindSymbol(findsym, 2);
+			s1 = i->second.val;
+		}
+
+		token = lex();
+		p2 = lexeme;
+		t2 = token;
+		if (t2 == SYMBOL) {
+			string findsym(lexeme);
+			i = FindSymbol(findsym, 2);
+			s2 = i->second.val;
+		}
+
+		// 계산
+		if (t1 == INT_LIT && t2 == INT_LIT) {		// DIGIT < DIGIT
+			if (atoi(p1.c_str()) >= atoi(p2.c_str()))
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+		else if (t1 == INT_LIT && t2 == SYMBOL) {		// DIGIT < SYMBOL
+			if (atoi(p1.c_str()) >= atoi(s2.c_str()))
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+		else if (t1 == SYMBOL && t2 == INT_LIT) {		// SYMBOL < DIGIT
+			if (atoi(s1.c_str()) >= atoi(p2.c_str()))
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+		else if (t1 == SYMBOL && t2 == SYMBOL) {			// SYMBOL < SYMBOL
+			if (atoi(s1.c_str()) >= atoi(s2.c_str()))
+				cout << "> T" << endl;
+			else
+				cout << "> F" << endl;
+		}
+
+		//cout << "p1 ----> " << p1 << endl;
+		//cout << "p2 ----> " << p2 << endl;
+		//cout << "s1 ----> " << s1 << endl;
+		//cout << "s2 ----> " << s2 << endl;
+		//cout << "t1 ----> " << t1 << endl;
+		//cout << "t2 ----> " << t2 << endl;
+
 	}
 	else if (token == STRINGP) {
-		//if ()
-		//	cout << "> T" << endl;
-		//else
-		//	cout << "> F" << endl;
-	}
+		string s;
+		map<string, SETQval>::iterator i;
 
+		token = lex();
+		if (token == DOUBLE_QUOTE) {		// String 직접 들어오는 경우
+			token = lex();
+			token = lex();
+			if (token != RIGHT_PAREN) {
+				while (token != DOUBLE_QUOTE) {
+					token = lex();
+				}
+				cout << "> T" << endl;
+			}
+			else {
+				cout << "> F" << endl;
+
+			}
+		}
+		else {	// String이 symbol로 들어오는 경우
+			if (token == SYMBOL) {
+				s += lexeme;
+				token = lex();
+				if (token == RIGHT_PAREN) {
+					string findsym(s);
+					i = FindSymbol(findsym, 2);
+
+					if (i->second.val_type == STRING) {
+						cout << "> T" << endl;
+
+					}
+					else
+						cout << "> F" << endl;
+				}
+				else
+					cout << "> F" << endl;
+			}
+			else
+				cout << "> F" << endl;
+		}
+
+	}
 	else { //여기에 계속 다른 연산 추가
 
 	}
@@ -1167,6 +1313,10 @@ int lookup(char ch) {
 		addChar();
 		nextToken = QUOTE;
 		break;
+	case '\"':
+		addChar();
+		nextToken = DOUBLE_QUOTE;
+		break;
 	default:
 		nextToken = EOF;
 		break;
@@ -1305,6 +1455,9 @@ int lex() {
 		}
 		else if (strcmp(lexeme, "'") == 0) {
 			nextToken = QUOTE;
+		}
+		else if (strcmp(lexeme, "\"") == 0) {
+			nextToken = DOUBLE_QUOTE;
 		}
 		else {
 			nextToken = SYMBOL;
