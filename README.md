@@ -14,7 +14,7 @@
 - ~~REVERSE~~
 - ~~APPEND~~
 - LENGTH
-- MEMBER
+- ~~MEMBER~~
 - ASSOC
 - REMOVE
 - SUBST
