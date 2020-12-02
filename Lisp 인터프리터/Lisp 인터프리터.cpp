@@ -73,6 +73,7 @@ int eval(int token);
 #define CONS 45
 #define REVERSE 46
 #define APPEND 47
+#define MEMBER 49
 #define ENTER 00
 
 #define SETQ 50 //SETQ token number
@@ -109,6 +110,7 @@ string ExcuteCARCDR(int token);
 string EXcuteCONS();
 string ExcuteREVERSE();
 string ExcuteAPPEND();
+int ExcuteMEMBER(int token);
 
 
 float calc(int token) {//사칙연산
@@ -520,7 +522,7 @@ int eval(int token) {
 				rewind(stdin); nextChar = '\n'; charClass = 99; //남은 문장은 버리기
 				return -1;
 			}
-			else{
+			else {
 				token = lex();
 			}
 		}
@@ -535,6 +537,9 @@ int eval(int token) {
 			return -1;
 		}
 
+	}
+	else if (token == MEMBER) {
+		ExcuteMEMBER(token);
 	}
 	else if (token == ATOM) {
 		token = lex(); //symbol
@@ -1001,6 +1006,123 @@ int eval(int token) {
 
 	}
 }
+int ExcuteMEMBER(int token) {
+	token = lex();
+	string syml;
+	/*
+	찾아야 하는 원소 스트링 형태로 저장하기
+	*/
+	if (token == QUOTE) { //찾아야하는 원소가 '붙은 심볼일때
+		token = lex();
+		string s(lexeme);
+		syml = s;
+		token = lex();
+	}
+	else if (token == SYMBOL) { //찾아야하는 원소가 심볼일때
+		string s(lexeme); //찾아야 하는 원소의 symbol
+		map<string, SETQval>::iterator it = FindSymbol(s, 2);
+		if (it != symbols.end()) {
+			syml = it->second.val;//찾아야 하는 원소의 symbol안에 저장된 값
+			token = lex();
+		}
+		else {
+			cout << "Symbol " << s << " is not bound : MEMBER" << endl;
+			rewind(stdin); nextChar = '\n'; charClass = 99; //문장 전체 오류처리
+			return -1;
+		}
+	}
+	else { //원소 형태가 아닐때
+		cout << "Syntax Error : MEMBER" << endl;
+		rewind(stdin); nextChar = '\n'; charClass = 99; //문장 전체 오류처리
+		return -1;
+	}
+	/*
+	주어진 리스트 안에서 찾기
+	*/
+	if (token == QUOTE) { //'로 시작하는 리스트 중에서 찾기
+		token = lex();
+		if (token == LEFT_PAREN) {
+			vector<string> list;
+			token = lex();
+			while (token != RIGHT_PAREN) { //리스트를 스트링 벡터로 변환하기
+				if (token == QUOTE) { // '붙은 심볼일때
+					token = lex();
+					string a(lexeme);
+					list.push_back(a);
+				}
+				else {//심볼인 경우
+					string symbol(lexeme);
+					map<string, SETQval>::iterator it = FindSymbol(symbol, 2);
+					if (it == symbols.end()) {
+						cout << "Error : symbol " << lexeme << " is not bound." << endl;
+						rewind(stdin); nextChar = '\n'; charClass = 99; //문장 전체 오류처리
+						return -1;
+					}
+					list.push_back(it->second.val);
+				}
+				token = lex();
+			}
+			vector<string>::iterator i = find(list.begin(), list.end(), syml); //스트링 vector로 변환한 리스트에서 찾아야 하는 원소 찾기
+			if (i != list.end()) { //찾은 위치부터 끝까지 자르기
+				string result = "";
+				while (i != list.end()) {
+					result += (*i);
+					result += " ";
+					i++;
+				}
+				result.pop_back();
+				cout << ">(" << result << ")" << endl; //출력
+				token = lex(); //닫는 괄호 처리
+				return -1;
+			}
+			else {
+				cout << "NIL" << endl;
+				token = lex();//닫는 괄호 처리
+				return -1;
+			}
+		}
+		else { //'다음에 (가 안올때 : 리스트가 아닌 것으로 판단하여 오류 처리
+			cout << "Not a list Error : MEMBER" << endl;
+			rewind(stdin); nextChar = '\n'; charClass = 99; //문장 전체 오류처리
+			return -1;
+		}
+	}
+	else if (token == SYMBOL) { //변수로 표현된 리스트 중에서 찾기
+		string listname(lexeme); //입력받은 리스트의 변수 이름
+		map<string, SETQval>::iterator iter = FindSymbol(listname, 2); //변수 이름을 통하여 리스트를 찾기
+		if ((iter != symbols.end()) && (iter->second.val_type == LIST)) { //존재하는 리스트일 때
+			string listcontent = iter->second.val;//리스트의 내용은 스트링으로 저장되어있다.
+			//string parsing
+			size_t prev = 0;
+			size_t curr = listcontent.find(' '); //공백문자를 delim으로 하여 파싱한다.
+			while (curr != string::npos) {
+				string substring = listcontent.substr(prev, curr - prev); //리스트의 원소를 앞에서부터 하나씩 자른다.
+				if (syml.compare(substring) == 0) { //만약 찾고 있는 원소와 자른 원소가 같다면
+					cout << "(" << listcontent.substr(prev, string::npos) << ")" << endl;//그 원소부터 리스트 끝까지 출력한다.
+					token = lex();//닫는 괄호 처리
+					return -1;
+				}
+				//찾고있는 원소와 같지 않다면 다음 원소를 파싱한다.
+				prev = curr + 1;
+				curr = listcontent.find(' ', prev);
+			}
+			if (listcontent.substr(prev, curr - prev).compare(syml) == 0) { //마지막 원소와 찾고 있는 원소가 같을 때
+				cout << ">(" << syml << ")" << endl;
+				return -1;
+			}
+			else { //끝까지 찾았는데 찾는 원소가 없을 때
+				cout << "NIL" << endl;
+				token = lex(); //닫는 괄호 처리
+				return -1;
+			}
+		}
+		else { //존재하지 않는 리스트일때
+			cout << "List Not exist Error : MEMBER" << endl;
+			rewind(stdin); nextChar = '\n'; charClass = 99; //문장 전체 오류처리
+			return -1;
+		}
+	}
+}
 
 
 string ExcuteCARCDR(int token) {
@@ -1387,8 +1509,8 @@ int lex() {
 		if (stricmp(lexeme, "COND") == 0) {
 			nextToken = COND;
 		}
-		else if (strcmp(lexeme, "do") == 0) {
-			nextToken = DO;
+		else if (stricmp(lexeme, "member") == 0) {
+			nextToken = MEMBER;
 		}
 		else if (strcmp(lexeme, "int") == 0) {
 			nextToken = INT;
@@ -1420,16 +1542,16 @@ int lex() {
 		else if (stricmp(lexeme, "NTH") == 0) {
 			nextToken = NTH;
 		}
-		else if (strcmp(lexeme, "CONS") == 0) {
+		else if (stricmp(lexeme, "CONS") == 0) {
 			nextToken = CONS;
 		}
-		else if (strcmp(lexeme, "REVERSE") == 0) {
+		else if (stricmp(lexeme, "REVERSE") == 0) {
 			nextToken = REVERSE;
 		}
-		else if (strcmp(lexeme, "APPEND") == 0) {
+		else if (stricmp(lexeme, "APPEND") == 0) {
 			nextToken = APPEND;
 		}
-		else if (strcmp(lexeme, "ATOM") == 0) {
+		else if (stricmp(lexeme, "ATOM") == 0) {
 			nextToken = ATOM;
 		}
 		else if (stricmp(lexeme, "NULL") == 0) {
