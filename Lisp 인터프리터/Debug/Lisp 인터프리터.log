@@ -12,6 +12,6 @@ C:\Users\임혜민\source\repos\LISP_interpreter\Lisp 인터프리터\Lisp 인�
 C:\Users\임혜민\source\repos\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(220,27): warning C4244: '-=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
 C:\Users\임혜민\source\repos\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(226,63): warning C4244: '-=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
 C:\Users\임혜민\source\repos\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(369,13): warning C4018: '>=': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\임혜민\source\repos\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(1069,40): warning C4553: '==': 식의 결과가 사용되지 않습니다. '='을(를) 의도했습니까?
-C:\Users\임혜민\source\repos\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(856): warning C4715: 'eval': 모든 제어 경로에서 값을 반환하지는 않습니다.
+C:\Users\임혜민\source\repos\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(1070,40): warning C4553: '==': 식의 결과가 사용되지 않습니다. '='을(를) 의도했습니까?
+C:\Users\임혜민\source\repos\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(857): warning C4715: 'eval': 모든 제어 경로에서 값을 반환하지는 않습니다.
   Lisp 인터프리터.vcxproj -> C:\Users\임혜민\source\repos\LISP_interpreter\Debug\Lisp 인터프리터.exe
