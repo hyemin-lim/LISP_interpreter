@@ -16,7 +16,7 @@
 - LENGTH
 - ~~MEMBER~~
 - ~~ASSOC~~
-- REMOVE
+- ~~REMOVE~~
 - SUBST
 ### <Predicate 함수> - 9개
 - ~~ATOM~~
