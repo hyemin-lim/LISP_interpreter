@@ -76,6 +76,8 @@ int eval(int token);
 #define MEMBER 49
 #define SETQ 50 //SETQ token number
 #define ASSOC 51
+#define REMOVE 52
+#define SUBST 53
 #define ENTER 00
 
 
@@ -419,6 +421,59 @@ int eval(int token) {
 	else if (token == ASSOC) {
 		ExcuteASSOC();
 	}
+	else if (token == REMOVE) {
+		token = lex();
+		string removestring;
+		string list;
+		map<string, SETQval>::iterator it;
+		bool symbolExist = true;
+		if (token == QUOTE) { //쿼트로 들어올 경우
+			token = lex();
+			removestring = lexeme;
+		}
+		else {
+			it = FindSymbol(lexeme, 2);
+			removestring = it->second.val;
+		}
+
+		token = lex();
+		//뒤의 리스트 처리
+		if (token == QUOTE) { //쿼트인 경우
+			token = lex();//좌괄호 처리
+			token = lex(); //첫뻔재 원소
+			while (token != RIGHT_PAREN) {
+				list.append(lexeme);
+				token = lex();
+				if (token == RIGHT_PAREN) break;
+				list.append(" ");
+			}
+		}
+		else { //심볼인경우
+			it = FindSymbol(lexeme, 2);		
+			if (it == symbols.end()) { symbolExist = false; }
+			list.append(it->second.val);
+		}
+		
+		token = lex(); //우괄호 처리 토큰들은 다 읽음
+		string key1 = removestring + " ";
+		string key2 = " " + removestring;
+
+		int index = 0;
+		while (index != string::npos) {
+			index = list.find(key1);
+			if (index == string::npos) break;
+
+			list.replace(index, key1.length(), "");
+		}
+		while (index != string::npos) {
+			index = list.find(key2);
+			if (index == string::npos) break;
+
+			list.replace(index, key2.length(), "");
+		}
+		cout << list << endl;
+	}
+
 
 	else if (token == IF) { // if
 		int test_expression = -1;
@@ -1632,6 +1687,12 @@ int lex() {
 		}
 		else if (strcmp(lexeme, "ASSOC") == 0) {
 			nextToken = ASSOC;
+		}
+		else if (strcmp(lexeme, "REMOVE") == 0) {
+			nextToken = REMOVE;
+		}
+		else if (strcmp(lexeme, "SUBST") == 0) {
+			nextToken = SUBST;
 		}
 		else if (stricmp(lexeme, "ZEROP") == 0) {
 			nextToken = ZEROP;

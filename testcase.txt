@@ -21,3 +21,14 @@
 
 
 (ASSOC 'TWO '((ONE 1)(TWO 2)(THREE 3))) //결과 (TOW 2)
+
+
+//remove
+(SETQ MYLIST '(A B C D E F))
+(REMOVE 'D MYLIST)
+(SETQ MM '(A D B C D E D F)) //D가 여러개라고 모두 삭제
+(REMOVE 'D MM)
+
+SUBST 세번쨰 인자에서 두번쨰 인자를 찾아서 첫번쨰 인자로 대치한다.
+(SUBST 'GOOD 'BAD '(I AM BAD))
+(I AM GOOD)
