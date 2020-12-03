@@ -15,7 +15,7 @@
 - ~~APPEND~~
 - LENGTH
 - ~~MEMBER~~
-- ASSOC
+- ~~ASSOC~~
 - REMOVE
 - SUBST
 ### <Predicate 함수> - 9개
