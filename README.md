@@ -17,7 +17,7 @@
 - ~~MEMBER~~
 - ~~ASSOC~~
 - ~~REMOVE~~
-- SUBST
+- ~~SUBST~~
 ### <Predicate 함수> - 9개
 - ~~ATOM~~
 - ~~NULL~~

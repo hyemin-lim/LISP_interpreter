@@ -473,7 +473,60 @@ int eval(int token) {
 		}
 		cout << list << endl;
 	}
+	else if (token == SUBST) {
+		string first;
+		string second;
+		string list;
+		map<string, SETQval>::iterator it;
 
+		//first 처리
+		token = lex();
+		if (token == QUOTE) {
+			token = lex();
+			first = lexeme;
+		}
+		else {
+			it = FindSymbol(lexeme, 2);
+			first = it->second.val;
+		}
+
+		//second 처리
+		token = lex();
+		if (token == QUOTE) {
+			token = lex();
+			second = lexeme;
+		}
+		else {
+			it = FindSymbol(lexeme, 2);
+			second = it->second.val;
+		}
+
+		//리스트처리
+		token = lex();
+		if (token == QUOTE) {
+			lex();//좌괄호 처리
+			lex();
+			while (token != RIGHT_PAREN) {
+				list.append(lexeme);
+				token = lex();
+				if (token == RIGHT_PAREN) break;
+				list.append(" ");
+			}
+		}
+		else {
+			it = FindSymbol(lexeme, 2);
+			list = it->second.val;
+		}
+		lex(); //우괄호 처리
+
+		int index = list.find(second);
+		if (index == string::npos) {
+		}
+		else {
+			list.replace(index, second.length(), first);
+		}
+		cout << "(" << list << ")" << endl;
+	}
 
 	else if (token == IF) { // if
 		int test_expression = -1;
@@ -1067,6 +1120,7 @@ int eval(int token) {
 
 	}
 	else { //여기에 계속 다른 연산 추가
+		
 
 	}
 }

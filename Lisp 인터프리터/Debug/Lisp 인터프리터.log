@@ -12,7 +12,7 @@ D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리
 D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(233,27): warning C4244: '-=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
 D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(239,63): warning C4244: '-=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
 D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(399,13): warning C4018: '>=': signed 또는 unsigned가 일치하지 않습니다.
-D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(1409,40): warning C4553: '==': 식의 결과가 사용되지 않습니다. '='을(를) 의도했습니까?
-D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(1196): warning C4715: 'ExcuteMEMBER': 모든 제어 경로에서 값을 반환하지는 않습니다.
-D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(1079): warning C4715: 'eval': 모든 제어 경로에서 값을 반환하지는 않습니다.
+D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(1456,40): warning C4553: '==': 식의 결과가 사용되지 않습니다. '='을(를) 의도했습니까?
+D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(1243): warning C4715: 'ExcuteMEMBER': 모든 제어 경로에서 값을 반환하지는 않습니다.
+D:\2020-2강의자료\PL\LISP_interpreter\Lisp 인터프리터\Lisp 인터프리터.cpp(1126): warning C4715: 'eval': 모든 제어 경로에서 값을 반환하지는 않습니다.
   Lisp 인터프리터.vcxproj -> D:\2020-2강의자료\PL\LISP_interpreter\Debug\Lisp 인터프리터.exe
