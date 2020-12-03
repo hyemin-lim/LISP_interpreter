@@ -74,9 +74,14 @@ int eval(int token);
 #define REVERSE 46
 #define APPEND 47
 #define MEMBER 49
+#define SETQ 50 //SETQ token number
+#define ASSOC 51
 #define ENTER 00
 
-#define SETQ 50 //SETQ token number
+
+
+
+
 
 // predicate function token number
 #define ATOM 80
@@ -110,6 +115,7 @@ string ExcuteCARCDR(int token);
 string EXcuteCONS();
 string ExcuteREVERSE();
 string ExcuteAPPEND();
+string ExcuteASSOC();
 int ExcuteMEMBER(int token);
 
 
@@ -409,6 +415,9 @@ int eval(int token) {
 	}
 	else if (token == APPEND) {
 		ExcuteAPPEND();
+	}
+	else if (token == ASSOC) {
+		ExcuteASSOC();
 	}
 
 	else if (token == IF) { // if
@@ -1380,6 +1389,64 @@ string ExcuteAPPEND() {
 	cout << '(' << list << ")" << endl;
 	return list;
 }
+string ExcuteASSOC() {
+	string key;
+	string list;
+	int pastToken;
+	int nowToken;
+	token = lex();
+	if (token == QUOTE) { //쿼드로 키가 들어올 경우
+		token = lex();
+		key = lexeme;
+	}
+	else { //심볼로 키가 들어올 경우
+		map<string, SETQval>::iterator it = FindSymbol(lexeme, 2);
+		if (it == symbols.end()) {
+			//남은 토큰들 다 읽고 끝내기
+			int cnt = 1;
+			while (cnt > 0) {
+				token = lex();
+				if (token == LEFT_PAREN) cnt++;
+				if (token == RIGHT_PAREN) cnt--;
+			}
+			cout << "No Symbol";
+			return " ";
+		}
+		key = it->second.val;
+	}
+
+	token = lex(); // 쿼트 읽기
+	lex(); //좌괄호처리
+	
+	//리스스들 읽기
+	pastToken = lex(); //좌괄호
+	nowToken = lex(); // 첫번쨰 리스트의 첫번쨰 원소
+	while (!((pastToken == RIGHT_PAREN) && (nowToken == RIGHT_PAREN))) {
+		if (lexeme == key) {
+			list.append(key);
+			while (nowToken != RIGHT_PAREN) {
+				pastToken = nowToken;
+				nowToken = lex();
+				if (nowToken == RIGHT_PAREN) break;
+				list.append(" ");
+				list.append(lexeme);
+			}
+		}
+		else {
+			while (nowToken != RIGHT_PAREN) {
+				pastToken = nowToken;
+				nowToken = lex();
+			}
+		}
+		pastToken = nowToken;
+		nowToken = lex(); //우괄호 인식
+		pastToken = nowToken;
+		nowToken = lex(); //그다음 리스트의 첫번쨰 원소
+	}
+
+	cout << '('<<list<<')';
+	return list;
+}
 
 
 /******************************************
@@ -1562,6 +1629,9 @@ int lex() {
 		}
 		else if (stricmp(lexeme, "NUMBERP") == 0) {
 			nextToken = NUMBERP;
+		}
+		else if (strcmp(lexeme, "ASSOC") == 0) {
+			nextToken = ASSOC;
 		}
 		else if (stricmp(lexeme, "ZEROP") == 0) {
 			nextToken = ZEROP;
