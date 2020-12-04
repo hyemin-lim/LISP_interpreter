@@ -73,13 +73,13 @@ int eval(int token);
 #define CONS 45
 #define REVERSE 46
 #define APPEND 47
+#define LENGTH 48
 #define MEMBER 49
 #define SETQ 50 //SETQ token number
 #define ASSOC 51
 #define REMOVE 52
 #define SUBST 53
 #define ENTER 00
-
 
 
 
@@ -449,11 +449,11 @@ int eval(int token) {
 			}
 		}
 		else { //심볼인경우
-			it = FindSymbol(lexeme, 2);		
+			it = FindSymbol(lexeme, 2);
 			if (it == symbols.end()) { symbolExist = false; }
 			list.append(it->second.val);
 		}
-		
+
 		token = lex(); //우괄호 처리 토큰들은 다 읽음
 		string key1 = removestring + " ";
 		string key2 = " " + removestring;
@@ -952,13 +952,6 @@ int eval(int token) {
 			}
 		}
 
-		//cout << "p1 ----> " << p1 << endl;
-		//cout << "p2 ----> " << p2 << endl;
-		//cout << "s1 ----> " << s1 << endl;
-		//cout << "s2 ----> " << s2 << endl;
-		//cout << "t1 ----> " << t1 << endl;
-		//cout << "t2 ----> " << t2 << endl;
-
 	}
 	else if (token == LT_OP) {		// --> real number만 가능.
 		string p1, p2;
@@ -1009,13 +1002,6 @@ int eval(int token) {
 			else
 				cout << "> F" << endl;
 		}
-
-		//cout << "p1 ----> " << p1 << endl;
-		//cout << "p2 ----> " << p2 << endl;
-		//cout << "s1 ----> " << s1 << endl;
-		//cout << "s2 ----> " << s2 << endl;
-		//cout << "t1 ----> " << t1 << endl;
-		//cout << "t2 ----> " << t2 << endl;
 
 	}
 	else if (token == GOE_OP) {
@@ -1069,13 +1055,6 @@ int eval(int token) {
 				cout << "> F" << endl;
 		}
 
-		//cout << "p1 ----> " << p1 << endl;
-		//cout << "p2 ----> " << p2 << endl;
-		//cout << "s1 ----> " << s1 << endl;
-		//cout << "s2 ----> " << s2 << endl;
-		//cout << "t1 ----> " << t1 << endl;
-		//cout << "t2 ----> " << t2 << endl;
-
 	}
 	else if (token == STRINGP) {
 		string s;
@@ -1119,8 +1098,101 @@ int eval(int token) {
 		}
 
 	}
+	else if (token == LENGTH) {		// 파라미터는 하나만 가능
+		token = lex();
+
+		if (token == QUOTE) {		// 리스트인 경우.
+			token = lex();	// 시작괄호
+			int lp = 0;
+			int rp = 0;
+			int count = 0;
+
+			if (token == LEFT_PAREN)
+				lp++;
+			else if (token == RIGHT_PAREN)
+				rp++;
+
+			token = lex();
+			int inner = 0;
+			bool inside = false;
+
+			 while (lp > rp ) {
+
+				 if (token == LEFT_PAREN)
+					 lp++;
+				 else if (token == RIGHT_PAREN)
+					 rp++;
+
+				count++;
+
+				if (token == LEFT_PAREN) {
+					inside = true;
+				}
+				else if (token == RIGHT_PAREN) {
+					count = count - inner;
+					inside = false;
+				}
+
+				if (inside == true) {
+					inner++;
+				}
+				else 
+					inner = 0;
+
+				token = lex();
+			}
+
+			cout << count - 1 << endl;
+			return 1;
+
+		}
+		else if (token == DOUBLE_QUOTE) {		// 스트링인 경우
+			token = lex();
+			string s = lexeme;
+			token = lex();
+			while (token != DOUBLE_QUOTE) {
+				s += " ";
+				s += lexeme;
+				token = lex();
+			}
+			cout << s.length() << endl;
+
+			token = lex(); //닫는 괄호 처리
+			return 1;
+		}
+		else if (token == SYMBOL) {		// 심볼이 숫자는 불가. 스트링이거나 리스트면 가능.
+			string s;
+			int type;
+			map<string, SETQval>::iterator i;
+			string findsym(lexeme);
+			i = FindSymbol(findsym, 2);
+			s = i->second.val;
+			type = i->second.val_type;
+
+			if (type == INT_LIT || token == INT_LIT)		// 숫자 불가
+				return 0;
+			else  if (type == LIST){		// 심볼의 값이 스트링이거나 리스트인 경우
+				int count=1;
+				for (int i = 0; s[i]; i++) {
+					if (' ' == s[i])
+						count++;
+				}
+
+				cout << count << endl;
+				token = lex(); //닫는 괄호 처리
+				return 1;
+			}
+			else if (type == STRING) {
+				cout << s.length() << endl;
+				token = lex(); //닫는 괄호 처리
+				return 1;
+			}
+
+		}
+
+	}
 	else { //여기에 계속 다른 연산 추가
-		
+
 
 	}
 }
@@ -1526,7 +1598,7 @@ string ExcuteASSOC() {
 
 	token = lex(); // 쿼트 읽기
 	lex(); //좌괄호처리
-	
+
 	//리스스들 읽기
 	pastToken = lex(); //좌괄호
 	nowToken = lex(); // 첫번쨰 리스트의 첫번쨰 원소
@@ -1553,7 +1625,7 @@ string ExcuteASSOC() {
 		nowToken = lex(); //그다음 리스트의 첫번쨰 원소
 	}
 
-	cout << '('<<list<<')';
+	cout << '(' << list << ')';
 	return list;
 }
 
@@ -1765,6 +1837,9 @@ int lex() {
 		}
 		else if (strcmp(lexeme, "\"") == 0) {
 			nextToken = DOUBLE_QUOTE;
+		}
+		else if (strcmp(lexeme, "LENGTH") == 0) {
+			nextToken = LENGTH;
 		}
 		else {
 			nextToken = SYMBOL;
