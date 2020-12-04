@@ -1,3 +1,6 @@
+(+ 3 5)
+(+ 3 (* 5 6))
+
 (SETQ X 5)
 (LIST 'X X 'Y)
 
@@ -6,29 +9,63 @@
 
 (CDR '(X Y Z))
 
-(SETQ X '(1 2 3))
-(CAR (CDR (CDR X)))
-(CADDR X) //위와 동일 통합 명령으로 사용가능
+(SETQ Y '(1 2 3))
+(CAR (CDR (CDR Y)))
+(CADDR Y)
 
-(NTH 4 '(0 1 2 3 4 5 6)) N번째 반환 0부터 카운트 즉4 반환
-(NTH 3 '(A B)) NIL
-(NTH 3 'A) ERROR
+(NTH 4 '(0 1 2 3 4 5 6))
+(NTH 3 '(A B))
+(NTH 3 'A)
 
-(CONS 'A '(B C D)) (A B C D)가 결과로 나옴
-(REVERSE '(A B C D)) (D C B A)가 결과로 나옴
-(APPEND '(A C) '(B D) '(E F)) 결과로 (A C B D E F)가 나옴
-//리스트 대신에 심볼을 넣어도 정상 작동\
+(CONS 'A '(B C D)) (A B C D)
+(REVERSE '(A B C D)) (D C B A)
+(APPEND '(A C) '(B D) '(E F))
+(LENGTH '(A B C))
+(LENGTH '((A B C))
 
+(SETQ CLUB '(TOM HARRY JOHN DANIEL))
+(MEMBER 'HARRY CLUB)
 
 (ASSOC 'TWO '((ONE 1)(TWO 2)(THREE 3))) //결과 (TOW 2)
 
 
-//remove
 (SETQ MYLIST '(A B C D E F))
 (REMOVE 'D MYLIST)
-(SETQ MM '(A D B C D E D F)) //D가 여러개라고 모두 삭제
+(SETQ MM '(A D B C D E D F))
 (REMOVE 'D MM)
 
-SUBST 세번쨰 인자에서 두번쨰 인자를 찾아서 첫번쨰 인자로 대치한다.
 (SUBST 'GOOD 'BAD '(I AM BAD))
 (I AM GOOD)
+
+
+
+
+(ATOM  X)
+(NULL X)
+(NUMBERP X)
+(ZEROP X)
+(MINUSP X)
+(EQUAL X Y)
+(< X Y)
+(>= X Y)
+(STRINGP X)
+(STRINGP "A")
+
+(SETQ A "HI THERE")
+(STRINGP A)
+
+(STRINGP #\A)
+(STRINGP '(A B C))
+(STRINGP 1.2)
+(STRINGP 'A) 
+(STRINGP #(0 1 2))
+(STRINGP NIL)
+
+
+
+(SETQ G 5)
+(IF (> G 3) (PRINT X))
+(IF (> G 3) (PRINT G) (+ G 5)
+(COND ((> G 0) (+ G 1))
+((= G 0) (+ G 2))
+((< G 0) (+ G 3)))
