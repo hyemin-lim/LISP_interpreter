@@ -768,7 +768,7 @@ int eval(int token) {
 		else
 			cout << "Error! " << lexeme << " is not DIGIT" << endl;
 	}
-	else if (token == EQUAL) {
+	else if (token == EQUAL || token == ASSIGN_OP) {
 		string p1, p2;
 		map<string, SETQval>::iterator i;
 		string s1, s2;
