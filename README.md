@@ -13,7 +13,7 @@
 - ~~CONS~~
 - ~~REVERSE~~
 - ~~APPEND~~
-- LENGTH
+- ~~LENGTH~~
 - ~~MEMBER~~
 - ~~ASSOC~~
 - ~~REMOVE~~
