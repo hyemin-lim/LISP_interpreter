@@ -26,7 +26,7 @@
 (SETQ CLUB '(TOM HARRY JOHN DANIEL))
 (MEMBER 'HARRY CLUB)
 
-(ASSOC 'TWO '((ONE 1)(TWO 2)(THREE 3))) //°á°ú (TOW 2)
+(ASSOC 'TWO '((ONE 1)(TWO 2)(THREE 3))) //Â°Ã¡Â°Ãº (TOW 2)
 
 
 (SETQ MYLIST '(A B C D E F))
@@ -67,5 +67,5 @@
 (IF (> G 3) (PRINT X))
 (IF (> G 3) (PRINT G) (+ G 5)
 (COND ((> G 0) (+ G 1))
-((= G 0) (+ G 2))
-((< G 0) (+ G 3)))
+(COND ((= G 0) (+ G 2)))
+(COND ((< G 0) (+ G 3))))
