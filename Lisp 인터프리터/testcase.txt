@@ -1,0 +1,68 @@
+(+ 3 5)
+(+ 3 (* 5 6));dss
+;fsef
+(SETQ X 5)
+(LIST 'X X 'Y)
+
+(CAR '(X Y Z))
+(CAR '((X) Y Z))
+
+(CDR '(X Y Z))
+
+(SETQ Y '(1 2 3))
+(CAR (CDR (CDR Y)))
+(CADDR Y)
+
+(NTH 4 '(0 1 2 3 4 5 6))
+(NTH 3 '(A B))
+(NTH 3 'A)
+
+(CONS 'A '(B C D))
+(REVERSE '(A B C D))
+(APPEND '(A C) '(B D) '(E F))
+(LENGTH '(A B C))
+(LENGTH '((A B C)))
+
+(SETQ CLUB '(TOM HARRY JOHN DANIEL))
+(MEMBER 'HARRY CLUB)
+
+(ASSOC 'TWO '((ONE 1)(TWO 2)(THREE 3)))
+
+
+(SETQ MYLIST '(A B C D E F))
+(REMOVE 'D MYLIST)
+(SETQ MM '(A D B C D E D F))
+(REMOVE 'D MM)
+
+(SUBST 'GOOD 'BAD '(I AM BAD))
+
+
+
+(ATOM  X)
+(NULL X)
+(NUMBERP X)
+(ZEROP X)
+(MINUSP X)
+(EQUAL X Y)
+(< X Y)
+(>= X Y)
+(STRINGP X)
+(STRINGP "A")
+
+(SETQ A "HI THERE")
+(STRINGP A)
+
+(STRINGP #\A)
+(STRINGP '(A B C))
+(STRINGP 1.2)
+(STRINGP 'A) 
+(STRINGP #(0 1 2))
+(STRINGP NIL)
+
+
+
+(SETQ G 5)
+(COND ((> G 0) (+ G 1)))
+(COND ((= G 0) (+ G 2))((> G 0) (+ G 1)))
+(COND ((< G 0) (+ G 3)))
+(COND ((< G 0) (+ G 3))(+ G 1))

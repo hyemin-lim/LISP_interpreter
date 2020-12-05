@@ -17,8 +17,8 @@
 (NTH 3 '(A B))
 (NTH 3 'A)
 
-(CONS 'A '(B C D)) (A B C D)
-(REVERSE '(A B C D)) (D C B A)
+(CONS 'A '(B C D))
+(REVERSE '(A B C D))
 (APPEND '(A C) '(B D) '(E F))
 (LENGTH '(A B C))
 (LENGTH '((A B C))
