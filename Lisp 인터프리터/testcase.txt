@@ -1,7 +1,10 @@
 (+ 3 5)
 (+ 3 (* 5 6));dss
 ;fsef
+(* x 5)
+(* 5 (+ x 6))
 (SETQ X 5)
+(- 10 X (/ 6 3))
 (LIST 'X X 'Y)
 
 (CAR '(X Y Z))
@@ -18,15 +21,37 @@
 (NTH 3 'A)
 
 (CONS 'A '(B C D))
+(CONS A '(B C D))
+(CONS 'A Y)
+(CONS X Y)
+
 (REVERSE '(A B C D))
+(REVERSE Y)
+
 (APPEND '(A C) '(B D) '(E F))
+(append '(A C) Y)
+(append '(A C) a)
+
 (LENGTH '(A B C))
 (LENGTH '((A B C)))
+(length "hello world")
+(setq str "heehee")
+(length str)
+(length Y)
+(LENGTH '(a (b c) d (e fg)))
 
 (SETQ CLUB '(TOM HARRY JOHN DANIEL))
 (MEMBER 'HARRY CLUB)
+(MEMBER 'HARRY '(TOM HARRY JAN))
+(SETQ HARRY 5)
+(SETQ JOHN JOHN)
+(MEMBER HARRY CLUB)
+(MEMBER JOHN CLUB)
+(MEMBER HARRY '(TOM HARRY JOHN))
+(MEMBER JOHN '(TOM HARRY JOHN))
 
 (ASSOC 'TWO '((ONE 1)(TWO 2)(THREE 3)))
+(ASSOC JOHN '((ONE 1)(TWO 2)(JOHN 3)))
 
 
 (SETQ MYLIST '(A B C D E F))
@@ -39,19 +64,37 @@
 
 
 (ATOM  X)
+(ATOM 9)
+
+(setq N nil)
+(NULL N)
+(NULL nil)
 (NULL X)
+(NULL (STRINGP #\A))
+
 (NUMBERP X)
+(NUMBERP 5)
+
+(setq Z 0)
 (ZEROP X)
+(ZEROP Z)
+(zerop 0)
+(zerop 9)
+
 (MINUSP X)
-(EQUAL X Y)
-(< X Y)
-(>= X Y)
+(MINUSP -5)
+(MINUSP 6)
+
+(setq Z 7)
+(< X 7)
+(> 6 X)
+(>= X 7)
+(<= 7 3)
+
 (STRINGP X)
 (STRINGP "A")
-
 (SETQ A "HI THERE")
 (STRINGP A)
-
 (STRINGP #\A)
 (STRINGP '(A B C))
 (STRINGP 1.2)
@@ -59,10 +102,27 @@
 (STRINGP #(0 1 2))
 (STRINGP NIL)
 
-
-
 (SETQ G 5)
-(COND ((> G 0) (+ G 1)))
-(COND ((= G 0) (+ G 2))((> G 0) (+ G 1)))
+(if (> G 3) (+ G 5))
+(IF (> G 3))
+(IF (> G 3) (+ G 5) (- G 5))
+(if (<= G 3) (+ G 5))
+(IF (<= G 3))
+(IF (<= G 3) (+ G 5) (- G 5))
+
+(COND ((> G 0) (+ G 1))(+ G 2))
+(COND ((= G 0) (+ G 2))((> G 0) (+ G 1))(+ G 3))
 (COND ((< G 0) (+ G 3)))
 (COND ((< G 0) (+ G 3))(+ G 1))
+(cond ((< G 0))(+ G 1))
+
+
+(EQUAL 5 6)
+(EQUAL X Y)
+(EQUAL X 5)
+(EQUAL 5 Y)
+(EQUAL '(1 2) '(1 2))
+(EQUAL '(5 6 4) 5)
+(EQUAL 7 '(1 2))
+(EQUAL '(1 2 3) Y)
+(EQUAL X '(1 2 3))
